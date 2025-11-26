@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [angular()],
   server: {
     host: '0.0.0.0',
-    port: Number(process.env.PORT) || 10000,
+    port: Number(process.env.PORT) || 4200,
     allowedHosts: ['silianos.onrender.com'],
   },
 });
