@@ -1,0 +1,116 @@
+<div class="min-h-screen bg-slate-950 text-slate-100">
+  <app-navbar></app-navbar>
+
+  <section class="pt-32 pb-20 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+    <!-- Decorative Elements -->
+    <div class="absolute top-0 left-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-15 -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-emerald-200 rounded-full blur-3xl opacity-15 translate-x-1/2 translate-y-1/2"></div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="text-center mb-12">
+        <h1 class="text-5xl md:text-6xl font-premium font-bold text-white mb-4">
+          Conditions d'Utilisation
+        </h1>
+        <p class="text-xl text-slate-300">
+          Dernière mise à jour : {{ currentDate }}
+        </p>
+      </div>
+
+      <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl border border-slate-800 p-8 md:p-12 space-y-8">
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-4">1. Acceptation des conditions</h2>
+          <p class="text-slate-300 leading-relaxed">
+            En accédant et en utilisant le site web de Silianos Voyage, vous acceptez d'être lié par ces conditions d'utilisation. 
+            Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre site.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-4">2. Utilisation du site</h2>
+          <p class="text-slate-300 leading-relaxed mb-4">
+            Vous vous engagez à utiliser notre site de manière légale et appropriée. Il est interdit de :
+          </p>
+          <ul class="list-disc list-inside text-slate-300 space-y-2 ml-4">
+            <li>Utiliser le site à des fins illégales ou non autorisées</li>
+            <li>Tenter d'accéder à des zones non autorisées du site</li>
+            <li>Transmettre des virus ou tout code malveillant</li>
+            <li>Copier, modifier ou distribuer le contenu sans autorisation</li>
+            <li>Utiliser des robots ou scripts automatisés pour accéder au site</li>
+          </ul>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-4">3. Réservations et paiements</h2>
+          <p class="text-slate-300 leading-relaxed mb-4">
+            Lorsque vous effectuez une réservation :
+          </p>
+          <ul class="list-disc list-inside text-slate-300 space-y-2 ml-4">
+            <li>Vous garantissez que toutes les informations fournies sont exactes et complètes</li>
+            <li>Vous acceptez de payer tous les frais associés à votre réservation</li>
+            <li>Vous reconnaissez que les prix peuvent être modifiés sans préavis</li>
+            <li>Vous comprenez que certaines réservations peuvent être soumises à des conditions d'annulation spécifiques</li>
+          </ul>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-4">4. Annulations et remboursements</h2>
+          <p class="text-slate-300 leading-relaxed">
+            Les politiques d'annulation et de remboursement varient selon le type de service et le fournisseur. 
+            Veuillez consulter les conditions spécifiques de votre réservation. Les demandes d'annulation doivent 
+            être faites dans les délais prévus pour être éligibles à un remboursement.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-4">5. Responsabilité</h2>
+          <p class="text-slate-300 leading-relaxed">
+            Silianos Voyage agit en tant qu'intermédiaire entre vous et les prestataires de services (compagnies aériennes, 
+            hôtels, etc.). Nous ne sommes pas responsables des actes, erreurs, omissions, déclarations, garanties, violations 
+            ou négligence de ces tiers. Nous ne sommes pas responsables des pertes ou dommages résultant de votre utilisation 
+            de nos services.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-4">6. Propriété intellectuelle</h2>
+          <p class="text-slate-300 leading-relaxed">
+            Tout le contenu de ce site, y compris les textes, graphiques, logos, images et logiciels, est la propriété de 
+            Silianos Voyage ou de ses concédants de licence et est protégé par les lois sur le droit d'auteur et autres 
+            lois sur la propriété intellectuelle.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-4">7. Modifications des conditions</h2>
+          <p class="text-slate-300 leading-relaxed">
+            Nous nous réservons le droit de modifier ces conditions d'utilisation à tout moment. Les modifications entreront 
+            en vigueur dès leur publication sur le site. Il est de votre responsabilité de consulter régulièrement ces conditions.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-4">8. Droit applicable</h2>
+          <p class="text-slate-300 leading-relaxed">
+            Ces conditions d'utilisation sont régies par les lois de la Tunisie. Tout litige sera soumis à la juridiction 
+            exclusive des tribunaux de Tunisie.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-bold text-white mb-4">9. Contact</h2>
+          <p class="text-slate-300 leading-relaxed">
+            Pour toute question concernant ces conditions d'utilisation, veuillez nous contacter à :
+          </p>
+          <p class="text-cyan-400 mt-2">
+            Email : contact&#64;silianos.com<br>
+            Téléphone : +216 98 147 666<br>
+            Adresse : Rue Ahmed Ibn Abi Dhiaf, Siliana, Tunisie
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <app-footer></app-footer>
+</div>
+

@@ -1,0 +1,64 @@
+<div class="min-h-screen bg-slate-950 text-slate-100">
+  <app-navbar></app-navbar>
+
+  <section class="pt-32 pb-20 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+    <!-- Decorative Elements -->
+    <div class="absolute top-0 left-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-15 -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-emerald-200 rounded-full blur-3xl opacity-15 translate-x-1/2 translate-y-1/2"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="text-center mb-16">
+        <h1 class="text-5xl md:text-6xl font-premium font-bold text-white mb-4">
+          Témoignages de nos Clients
+        </h1>
+        <p class="text-xl text-slate-300 max-w-3xl mx-auto">
+          Découvrez ce que nos clients disent de leurs expériences avec Silianos Voyage
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        @for (testimonial of testimonials; track testimonial.id) {
+          <div
+            class="group relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-slate-800"
+          >
+            <!-- Quote Icon -->
+            <div class="absolute top-6 right-6 w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 rounded-full flex items-center justify-center opacity-50">
+              <lucide-icon [name]="quoteIcon" class="w-6 h-6 text-cyan-400"></lucide-icon>
+            </div>
+
+            <!-- Rating -->
+            <div class="flex gap-1 mb-4">
+              @for (star of getStars(testimonial.rating); track $index) {
+                <lucide-icon [name]="starIcon" class="w-5 h-5 fill-yellow-400 text-yellow-400"></lucide-icon>
+              }
+            </div>
+
+            <!-- Comment -->
+            <p class="text-slate-300 mb-6 leading-relaxed italic">
+              "{{ testimonial.comment }}"
+            </p>
+
+            <!-- Customer Info -->
+            <div class="flex items-center gap-4 pt-6 border-t border-slate-700">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center text-white font-bold text-lg">
+                {{ testimonial.customerName.charAt(0) }}
+              </div>
+              <div>
+                <div class="text-white font-semibold">{{ testimonial.customerName }}</div>
+                <div class="text-slate-400 text-sm">{{ testimonial.service }}</div>
+              </div>
+              @if (testimonial.verified) {
+                <div class="ml-auto px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded-lg border border-emerald-500/30">
+                  Vérifié
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <app-footer></app-footer>
+</div>
+

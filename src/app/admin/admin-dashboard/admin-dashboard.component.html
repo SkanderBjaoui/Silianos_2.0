@@ -1,0 +1,74 @@
+<div class="min-h-screen bg-slate-950 text-slate-100 flex">
+  <!-- Sidebar -->
+  <aside
+    [class]="'fixed lg:static inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 transform transition-transform duration-300 ' + 
+      (sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0')"
+  >
+    <div class="flex flex-col h-full">
+      <!-- Logo -->
+      <div class="p-6 border-b border-slate-800">
+        <h1 class="text-2xl font-premium font-bold bg-gradient-to-r from-cyan-500 to-emerald-500 bg-clip-text text-transparent">
+          Admin Panel
+        </h1>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+        @for (item of menuItems; track item.path) {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 border-l-4 border-cyan-500"
+            [routerLinkActiveOptions]="{exact: item.path === '/admin'}"
+            class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+            (click)="sidebarOpen = false"
+          >
+            <lucide-icon [name]="item.icon" class="w-5 h-5"></lucide-icon>
+            <span>{{ item.label }}</span>
+          </a>
+        }
+      </nav>
+
+      <!-- Logout -->
+      <div class="p-4 border-t border-slate-800">
+        <button
+          (click)="logout()"
+          class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-red-500/20 hover:text-red-400 transition-colors"
+        >
+          <lucide-icon [name]="logOutIcon" class="w-5 h-5"></lucide-icon>
+          <span>Déconnexion</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Overlay for mobile -->
+  @if (sidebarOpen) {
+    <div
+      class="fixed inset-0 bg-black/50 z-40 lg:hidden"
+      (click)="sidebarOpen = false"
+    ></div>
+  }
+
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-col min-w-0">
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 px-4 py-4 lg:px-8">
+      <div class="flex items-center justify-between">
+        <button
+          (click)="toggleSidebar()"
+          class="lg:hidden p-2 rounded-lg hover:bg-slate-800 text-slate-300"
+        >
+          <lucide-icon [name]="sidebarOpen ? xIcon : menuIcon" class="w-6 h-6"></lucide-icon>
+        </button>
+        <h2 class="text-xl font-semibold text-white">Tableau de bord</h2>
+        <div></div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto p-4 lg:p-8">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>
+

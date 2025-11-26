@@ -1,0 +1,109 @@
+<div class="space-y-8">
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Bookings -->
+    <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 border border-slate-800">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+          <lucide-icon [name]="calendarIcon" class="w-6 h-6 text-blue-400"></lucide-icon>
+        </div>
+        <span class="text-2xl font-bold text-white">{{ stats.bookings }}</span>
+      </div>
+      <h3 class="text-slate-400 text-sm mb-1">Total Réservations</h3>
+      <p class="text-slate-500 text-xs">{{ stats.pendingBookings }} en attente</p>
+    </div>
+
+    <!-- Messages -->
+    <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 border border-slate-800">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+          <lucide-icon [name]="messageSquareIcon" class="w-6 h-6 text-emerald-400"></lucide-icon>
+        </div>
+        <span class="text-2xl font-bold text-white">{{ stats.messages }}</span>
+      </div>
+      <h3 class="text-slate-400 text-sm mb-1">Nouveaux Messages</h3>
+      <p class="text-slate-500 text-xs">Nécessitent une attention</p>
+    </div>
+
+    <!-- Testimonials -->
+    <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 border border-slate-800">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+          <lucide-icon [name]="starIcon" class="w-6 h-6 text-yellow-400"></lucide-icon>
+        </div>
+        <span class="text-2xl font-bold text-white">{{ stats.testimonials }}</span>
+      </div>
+      <h3 class="text-slate-400 text-sm mb-1">Témoignages</h3>
+      <p class="text-slate-500 text-xs">Total publiés</p>
+    </div>
+
+    <!-- Revenue -->
+    <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 border border-slate-800">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+          <lucide-icon [name]="trendingUpIcon" class="w-6 h-6 text-cyan-400"></lucide-icon>
+        </div>
+        <span class="text-2xl font-bold text-white">{{ stats.revenue }} DT</span>
+      </div>
+      <h3 class="text-slate-400 text-sm mb-1">Revenus</h3>
+      <p class="text-slate-500 text-xs">Réservations confirmées</p>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="grid lg:grid-cols-2 gap-6">
+    <!-- Recent Bookings -->
+    <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 border border-slate-800">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-white">Réservations Récentes</h2>
+        <a routerLink="/admin/bookings" class="text-cyan-400 hover:text-cyan-300 text-sm flex items-center gap-1">
+          Voir tout
+          <lucide-icon [name]="arrowRightIcon" class="w-4 h-4"></lucide-icon>
+        </a>
+      </div>
+      <div class="space-y-4">
+        @for (booking of recentBookings; track booking.id) {
+          <div class="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl">
+            <div>
+              <p class="text-white font-semibold">{{ booking.customerName }}</p>
+              <p class="text-slate-400 text-sm">{{ booking.serviceType }}</p>
+            </div>
+            <span [class]="'px-3 py-1 rounded-lg text-xs font-semibold border ' + getStatusColor(booking.status)">
+              {{ booking.status === 'pending' ? 'En attente' : 
+                 booking.status === 'confirmed' ? 'Confirmé' : 
+                 booking.status === 'cancelled' ? 'Annulé' : 'Terminé' }}
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Recent Messages -->
+    <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 border border-slate-800">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-white">Messages Récents</h2>
+        <a routerLink="/admin/messages" class="text-cyan-400 hover:text-cyan-300 text-sm flex items-center gap-1">
+          Voir tout
+          <lucide-icon [name]="arrowRightIcon" class="w-4 h-4"></lucide-icon>
+        </a>
+      </div>
+      <div class="space-y-4">
+        @for (message of recentMessages; track message.id) {
+          <div class="p-4 bg-slate-800/50 rounded-xl">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-white font-semibold">{{ message.name }}</p>
+              @if (message.status === 'new') {
+                <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded-lg border border-emerald-500/30">
+                  Nouveau
+                </span>
+              }
+            </div>
+            <p class="text-slate-400 text-sm mb-1">{{ message.subject }}</p>
+            <p class="text-slate-500 text-xs line-clamp-2">{{ message.message }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,7 @@
+/* Navbar component styles */
+
+/* Close dropdowns when clicking outside */
+:host {
+  display: block;
+}
+

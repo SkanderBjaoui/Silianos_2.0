@@ -1,0 +1,43 @@
+<section id="about" class="relative py-24 bg-slate-950">
+  <div class="absolute inset-0 pointer-events-none opacity-10 bg-gradient-to-b from-blue-900/30 via-slate-900/30 to-emerald-900/30"></div>
+
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      <div class="space-y-6 animate-fade-in-up">
+        <h2 class="text-4xl md:text-5xl font-premium font-bold text-white">
+          À propos de <span class="bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">Silianos Voyage</span>
+        </h2>
+        <p class="text-lg text-slate-300 leading-relaxed">
+          Nous sommes une agence de voyage dédiée à offrir des expériences inoubliables à travers le monde.
+          De l'organisation d'Omra & Hajj aux circuits en Tunisie, en passant par les visas internationaux,
+          nous mettons notre expertise et notre passion au service de votre voyage.
+        </p>
+        <p class="text-slate-400">
+          Avec une équipe expérimentée et un réseau de partenaires de confiance, nous garantissons un service
+          de qualité, transparent et sécurisé, au meilleur prix.
+        </p>
+
+        <div class="flex gap-4">
+          <div class="px-4 py-2 rounded-lg bg-blue-50 text-blue-700 font-medium border border-blue-100">15+ ans d'expérience</div>
+          <div class="px-4 py-2 rounded-lg bg-emerald-50 text-emerald-700 font-medium border border-emerald-100">10k+ clients satisfaits</div>
+        </div>
+      </div>
+
+      <div class="relative animate-fade-in-up animation-delay-300">
+        <div class="rounded-3xl overflow-hidden shadow-2xl border border-slate-800">
+          <img src="assets/mission.png" alt="Voyage" class="w-full h-80 object-cover" (error)="handleImageError($event)" />
+        </div>
+
+        <div class="absolute -bottom-6 -left-6 bg-slate-900 rounded-2xl shadow-xl border border-slate-800 px-5 py-4 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-emerald-600 flex items-center justify-center shadow-lg">
+            <lucide-icon [name]="planeIcon" class="w-6 h-6 text-white"></lucide-icon>
+          </div>
+          <div>
+            <div class="text-white font-semibold">Voyagez en toute sérénité</div>
+            <div class="text-slate-400 text-sm">Service premium, assistance 24/7</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,81 @@
+<section class="relative w-full h-screen overflow-hidden bg-black">
+  <!-- Background Photo Layer -->
+  <div
+    class="absolute inset-0 z-0 bg-cover bg-center"
+    style="background-image: url('assets/hero.jpg')"
+  ></div>
+
+  <!-- Aurora Background Overlay (reduced to ~30% opacity) -->
+  <div class="absolute inset-0 z-10 opacity-30">
+    <app-aurora
+      [colorStops]="['#3A29FF', '#FF94B4', '#FF3232']"
+      [blend]="0.4"
+      [amplitude]="0.7"
+      [speed]="0.45"
+    ></app-aurora>
+  </div>
+
+  <div class="relative z-20 w-full h-full flex items-center">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div class="text-center space-y-8 relative">
+        <!-- Main Heading -->
+        <div class="space-y-4 animate-fade-in-up relative inline-block">
+          <h1 class="text-6xl md:text-7xl lg:text-8xl font-premium font-bold text-white leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+            <span class="block">Voyager avec</span>
+            <span class="bg-gradient-to-r from-cyan-300 via-emerald-300 to-blue-300 bg-clip-text text-transparent">
+              Silianos
+            </span>
+          </h1>
+          <p class="text-xl md:text-2xl text-blue-100/90 max-w-3xl mx-auto font-light">
+            معانا، السفر ما هوش حلم بل واقع بأسعار خيالية
+          </p>
+          <p class="text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
+            Avec nous, le voyage n'est pas un rêve mais une réalité à des prix fantastiques
+          </p>
+        </div>
+
+        <!-- Premium Buttons -->
+        <div class="flex flex-wrap justify-center gap-4 animate-fade-in-up animation-delay-300">
+          <!-- Découvrir nos offres - UIverse Button -->
+          <a href="#pricing" class="button">
+            <div class="wrap">
+              <div class="outline"></div>
+              <div class="content">
+                <span class="text-white font-semibold tracking-wide">Découvrir  -&gt;</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- Feature Cards with Glassmorphism -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-16 animate-fade-in-up animation-delay-600">
+          <div class="glass-card-premium group hover:scale-105 transition-all duration-300">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center overflow-hidden group-hover:rotate-12 transition-transform">
+              <img src="assets/maka.png" alt="Omra & Hajj" class="w-10 h-10 object-contain" (error)="handleImageError($event)" />
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Omra & Hajj</h3>
+            <p class="text-blue-100">Vivez une expérience spirituelle inoubliable</p>
+          </div>
+
+          <div class="glass-card-premium group hover:scale-105 transition-all duration-300">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center group-hover:rotate-12 transition-transform">
+              <lucide-icon [name]="planeIcon" class="w-8 h-8 text-white"></lucide-icon>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Visas International</h3>
+            <p class="text-blue-100">EAU, Qatar, Oman, Égypte et plus</p>
+          </div>
+
+          <div class="glass-card-premium group hover:scale-105 transition-all duration-300">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center overflow-hidden group-hover:rotate-12 transition-transform">
+              <img src="assets/map.png" alt="Circuits Tunisie" class="w-10 h-10 object-contain" (error)="handleImageError($event)" />
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Circuits Tunisie</h3>
+            <p class="text-blue-100">Découvrez le Sud tunisien</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-950 to-transparent"></div>
+</section>

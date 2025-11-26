@@ -1,0 +1,63 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-3xl font-bold text-white">Gestion des Témoignages</h1>
+    <div class="text-slate-400">
+      Total: <span class="text-white font-semibold">{{ testimonials.length }}</span>
+    </div>
+  </div>
+
+  <div class="grid gap-6">
+    @for (testimonial of testimonials; track testimonial.id) {
+      <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 border border-slate-800">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center text-white font-bold">
+                {{ testimonial.customerName.charAt(0) }}
+              </div>
+              <div>
+                <h3 class="text-white font-semibold">{{ testimonial.customerName }}</h3>
+                <p class="text-slate-400 text-sm">{{ testimonial.service }}</p>
+              </div>
+              @if (testimonial.verified) {
+                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-semibold border border-emerald-500/30">
+                  Vérifié
+                </span>
+              } @else {
+                <span class="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-lg text-xs font-semibold border border-yellow-500/30">
+                  Non vérifié
+                </span>
+              }
+            </div>
+            <div class="flex gap-1 mb-3">
+              @for (star of getStars(testimonial.rating); track $index) {
+                <lucide-icon [name]="starIcon" class="w-5 h-5 fill-yellow-400 text-yellow-400"></lucide-icon>
+              }
+            </div>
+            <p class="text-slate-300 italic mb-2">"{{ testimonial.comment }}"</p>
+            <p class="text-slate-500 text-xs">{{ testimonial.date }}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            @if (!testimonial.verified) {
+              <button
+                (click)="verifyTestimonial(testimonial.id)"
+                class="p-2 rounded-lg hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 transition-colors"
+                title="Vérifier"
+              >
+                <lucide-icon [name]="checkIcon" class="w-4 h-4"></lucide-icon>
+              </button>
+            }
+            <button
+              (click)="deleteTestimonial(testimonial.id)"
+              class="p-2 rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors"
+              title="Supprimer"
+            >
+              <lucide-icon [name]="trashIcon" class="w-4 h-4"></lucide-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+

@@ -1,0 +1,109 @@
+<div class="min-h-screen bg-slate-950 text-slate-100">
+  <app-navbar></app-navbar>
+
+  @if (service) {
+    <section class="pt-32 pb-20 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      <!-- Decorative Elements -->
+      <div class="absolute top-0 left-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-15 -translate-x-1/2 -translate-y-1/2"></div>
+      <div class="absolute bottom-0 right-0 w-96 h-96 bg-emerald-200 rounded-full blur-3xl opacity-15 translate-x-1/2 translate-y-1/2"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <!-- Back Button -->
+        <a
+          routerLink="/services"
+          class="inline-flex items-center gap-2 text-slate-300 hover:text-white mb-8 transition-colors"
+        >
+          <lucide-icon [name]="arrowLeftIcon" class="w-5 h-5"></lucide-icon>
+          <span>Retour aux services</span>
+        </a>
+
+        <!-- Hero Section -->
+        <div class="mb-16">
+          <div class="relative h-96 rounded-3xl overflow-hidden border border-slate-800 shadow-2xl">
+            <img
+              [src]="service.image"
+              [alt]="service.title"
+              class="w-full h-full object-cover"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/50 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-8">
+              <h1 [class]="'text-4xl md:text-5xl font-premium font-bold text-white mb-4 bg-gradient-to-r ' + service.color + ' bg-clip-text text-transparent'">
+                {{ service.title }}
+              </h1>
+              <p class="text-xl text-slate-300 max-w-3xl">
+                {{ service.description }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="grid lg:grid-cols-3 gap-8">
+          <!-- Main Content -->
+          <div class="lg:col-span-2 space-y-8">
+            <!-- Description -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 border border-slate-800">
+              <h2 class="text-2xl font-bold text-white mb-4">À propos de ce service</h2>
+              <p class="text-slate-300 leading-relaxed">
+                {{ service.fullDescription }}
+              </p>
+            </div>
+
+            <!-- Benefits -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 border border-slate-800">
+              <h2 class="text-2xl font-bold text-white mb-6">Avantages</h2>
+              <div class="space-y-4">
+                @for (benefit of service.benefits; track benefit) {
+                  <div class="flex items-start gap-3">
+                    <div [class]="'w-6 h-6 rounded-full bg-gradient-to-r ' + service.color + ' flex items-center justify-center flex-shrink-0 mt-0.5'">
+                      <lucide-icon [name]="checkIcon" class="w-4 h-4 text-white"></lucide-icon>
+                    </div>
+                    <p class="text-slate-300">{{ benefit }}</p>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="space-y-6">
+            <!-- Features Card -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-6 border border-slate-800">
+              <h3 class="text-xl font-bold text-white mb-4">Caractéristiques</h3>
+              <div class="space-y-3">
+                @for (feature of service.features; track feature) {
+                  <div class="flex items-center gap-2 text-slate-300">
+                    <div [class]="'w-2 h-2 bg-gradient-to-r ' + service.color + ' rounded-full'"></div>
+                    <span>{{ feature }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- CTA Card -->
+            <div [class]="'bg-gradient-to-br ' + service.color + ' rounded-3xl p-6 text-white'">
+              <h3 class="text-xl font-bold mb-4">Intéressé par ce service?</h3>
+              <p class="text-white/90 mb-6">
+                Contactez-nous dès maintenant pour obtenir un devis personnalisé
+              </p>
+              <a
+                routerLink="/booking"
+                class="block w-full text-center py-3 px-6 bg-white text-slate-900 rounded-xl font-semibold hover:bg-slate-100 transition-colors"
+              >
+                Réserver maintenant
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  } @else {
+    <section class="pt-32 pb-20 text-center">
+      <h1 class="text-4xl font-bold text-white mb-4">Service non trouvé</h1>
+      <a routerLink="/services" class="text-cyan-400 hover:text-cyan-300">Retour aux services</a>
+    </section>
+  }
+
+  <app-footer></app-footer>
+</div>
+

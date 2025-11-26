@@ -1,0 +1,41 @@
+<section id="why-us" class="py-32 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+  <!-- Decorative Elements -->
+  <div class="absolute inset-0 overflow-hidden">
+    <div class="absolute top-1/4 left-10 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+    <div class="absolute top-1/3 right-10 w-64 h-64 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <div class="text-center mb-20">
+      <h2 class="text-5xl md:text-6xl font-premium font-bold text-white mb-4">
+        Pourquoi Choisir Silianos Voyage ?
+      </h2>
+      <p class="text-xl text-slate-300 max-w-3xl mx-auto">
+        Nous nous démarquons par notre engagement envers l'excellence et la satisfaction client
+      </p>
+    </div>
+
+    <!-- Reason Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+      @for (reason of reasons; track reason.title; let index = $index) {
+        <div
+          class="group relative"
+          [style.animation]="'fade-in-up 0.6s ease-out ' + (index * 100) + 'ms both'"
+        >
+          <div [class]="'absolute inset-0 bg-gradient-to-br ' + reason.gradient + ' rounded-3xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500'"></div>
+
+          <div class="relative bg-slate-900 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border border-slate-800">
+            <div [class]="'w-16 h-16 bg-gradient-to-br ' + reason.gradient + ' rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg'">
+              <lucide-icon [name]="reason.icon" class="w-8 h-8 text-white"></lucide-icon>
+            </div>
+
+            <h3 class="text-xl font-bold text-white mb-3">{{ reason.title }}</h3>
+            <p class="text-slate-300 leading-relaxed">{{ reason.description }}</p>
+
+            <div class="mt-6 h-1 w-0 group-hover:w-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all duration-500"></div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
