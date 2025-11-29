@@ -1,4 +1,4 @@
-<section class="relative w-full h-screen overflow-hidden bg-black">
+<section class="relative w-full min-h-screen pt-24 md:pt-28 overflow-hidden bg-black">
   <!-- Background Photo Layer -->
   <div
     class="absolute inset-0 z-0 bg-cover bg-center"
@@ -37,19 +37,21 @@
         <!-- Premium Buttons -->
         <div class="flex flex-wrap justify-center gap-4 animate-fade-in-up animation-delay-300">
           <!-- Découvrir nos offres - UIverse Button -->
-          <a href="#pricing" class="button">
+          <a href="#about" class="button">
             <div class="wrap">
               <div class="outline"></div>
               <div class="content">
-                <span class="text-white font-semibold tracking-wide">Découvrir  -&gt;</span>
+                <span class="text-white font-semibold tracking-wide">
+                  <span class="text-white">Découvrir</span>
+                </span>
               </div>
             </div>
           </a>
         </div>
 
         <!-- Feature Cards with Glassmorphism -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-16 animate-fade-in-up animation-delay-600">
-          <div class="glass-card-premium group hover:scale-105 transition-all duration-300">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-16 mb-50 animate-fade-in-up animation-delay-600">
+          <div class="glass-card-premium group hover:scale-105 transition-all duration-300 border border-white/30 rounded-3xl p-8 shadow-2xl" style="backdrop-filter: blur(300px) !important; -webkit-backdrop-filter: blur(300px) !important; background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.65)) !important;">
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center overflow-hidden group-hover:rotate-12 transition-transform">
               <img src="assets/maka.png" alt="Omra & Hajj" class="w-10 h-10 object-contain" (error)="handleImageError($event)" />
             </div>
@@ -57,7 +59,7 @@
             <p class="text-blue-100">Vivez une expérience spirituelle inoubliable</p>
           </div>
 
-          <div class="glass-card-premium group hover:scale-105 transition-all duration-300">
+          <div class="glass-card-premium group hover:scale-105 transition-all duration-300 border border-white/30 rounded-3xl p-8 shadow-2xl" style="backdrop-filter: blur(300px) !important; -webkit-backdrop-filter: blur(300px) !important; background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.65)) !important;">
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center group-hover:rotate-12 transition-transform">
               <lucide-icon [name]="planeIcon" class="w-8 h-8 text-white"></lucide-icon>
             </div>
@@ -65,7 +67,7 @@
             <p class="text-blue-100">EAU, Qatar, Oman, Égypte et plus</p>
           </div>
 
-          <div class="glass-card-premium group hover:scale-105 transition-all duration-300">
+          <div class="glass-card-premium group hover:scale-105 transition-all duration-300 border border-white/30 rounded-3xl p-8 shadow-2xl" style="backdrop-filter: blur(300px) !important; -webkit-backdrop-filter: blur(300px) !important; background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.65)) !important;">
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center overflow-hidden group-hover:rotate-12 transition-transform">
               <img src="assets/map.png" alt="Circuits Tunisie" class="w-10 h-10 object-contain" (error)="handleImageError($event)" />
             </div>

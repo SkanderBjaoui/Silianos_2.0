@@ -20,6 +20,8 @@ export class BlogComponent implements OnInit {
   posts: BlogPost[] = [];
   selectedCategory: string = 'all';
   categories: string[] = [];
+  selectedPost: BlogPost | null = null;
+  showModal = false;
 
   constructor(private dataService: DataService) {}
 
@@ -40,6 +42,19 @@ export class BlogComponent implements OnInit {
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  openModal(post: BlogPost, event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.selectedPost = post;
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.selectedPost = null;
   }
 }
 

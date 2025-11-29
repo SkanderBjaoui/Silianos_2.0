@@ -1,0 +1,20 @@
+/* Dashboard component styles */
+@media (max-width: 768px) {
+  aside {
+    position: fixed;
+    left: -100%;
+    top: 5rem;
+    z-index: 40;
+    transition: left 0.3s ease;
+    height: calc(100vh - 5rem);
+  }
+  
+  aside.open {
+    left: 0;
+  }
+  
+  main {
+    width: 100%;
+  }
+}
+

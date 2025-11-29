@@ -1,13 +1,13 @@
-<div class="min-h-screen bg-slate-950 text-slate-100">
+<div class="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
   <app-navbar></app-navbar>
 
-  <section class="pt-32 pb-20 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+  <section class="pt-32 pb-20 relative overflow-hidden scroll-reveal" data-reveal-delay="80ms">
     <!-- Decorative Elements -->
     <div class="absolute top-0 left-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-15 -translate-x-1/2 -translate-y-1/2"></div>
     <div class="absolute bottom-0 right-0 w-96 h-96 bg-emerald-200 rounded-full blur-3xl opacity-15 translate-x-1/2 translate-y-1/2"></div>
 
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-      <div class="text-center mb-12">
+      <div class="text-center mb-12 scroll-reveal" data-reveal-delay="140ms">
         <h1 class="text-5xl md:text-6xl font-premium font-bold text-white mb-4">
           Réservez Votre Voyage
         </h1>
@@ -18,14 +18,14 @@
 
       <!-- Success Message -->
       @if (success) {
-        <div class="mb-8 p-4 bg-emerald-500/20 border border-emerald-500/50 rounded-2xl text-emerald-300 text-center">
+        <div class="mb-8 p-4 bg-emerald-500/20 border border-emerald-500/50 rounded-2xl text-emerald-300 text-center scroll-reveal" data-reveal-delay="200ms">
           <p class="font-semibold">Votre demande de réservation a été envoyée avec succès!</p>
           <p class="text-sm mt-1">Nous vous contacterons bientôt.</p>
         </div>
       }
 
       <!-- Booking Form -->
-      <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl overflow-hidden border border-slate-800 backdrop-blur-xl p-8 md:p-12">
+      <div class="rounded-3xl shadow-2xl overflow-hidden border border-slate-800 backdrop-blur-xl p-8 md:p-12 scroll-reveal" data-reveal-delay="220ms">
         <form (ngSubmit)="onSubmit()" class="space-y-6">
           <!-- Name -->
           <div>

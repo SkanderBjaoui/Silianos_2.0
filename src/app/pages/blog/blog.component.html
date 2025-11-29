@@ -1,13 +1,14 @@
-<div class="min-h-screen bg-slate-950 text-slate-100">
+<div class="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
   <app-navbar></app-navbar>
 
-  <section class="pt-32 pb-20 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+  <section class="pt-32 pb-20 relative overflow-hidden scroll-reveal" data-reveal-delay="80ms">
     <!-- Decorative Elements -->
     <div class="absolute top-0 left-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-15 -translate-x-1/2 -translate-y-1/2"></div>
     <div class="absolute bottom-0 right-0 w-96 h-96 bg-emerald-200 rounded-full blur-3xl opacity-15 translate-x-1/2 translate-y-1/2"></div>
+    <div class="absolute top-1/4 right-1/4 w-80 h-80 bg-rose-300 rounded-full blur-3xl opacity-10"></div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-      <div class="text-center mb-16">
+      <div class="text-center mb-16 scroll-reveal" data-reveal-delay="140ms">
         <h1 class="text-5xl md:text-6xl font-premium font-bold text-white mb-4">
           Blog & Actualités
         </h1>
@@ -17,7 +18,7 @@
       </div>
 
       <!-- Category Filter -->
-      <div class="flex flex-wrap justify-center gap-4 mb-12">
+      <div class="flex flex-wrap justify-center gap-4 mb-12 scroll-reveal" data-reveal-delay="200ms">
         @for (category of categories; track category) {
           <button
             (click)="filterByCategory(category)"
@@ -33,9 +34,11 @@
 
       <!-- Blog Posts Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        @for (post of posts; track post.id) {
+        @for (post of posts; track post.id; let idx = $index) {
           <article
-            class="group relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-slate-800"
+            class="group relative rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-slate-800 scroll-reveal cursor-pointer"
+            [attr.data-reveal-delay]="(idx * 90) + 'ms'"
+            (click)="openModal(post)"
           >
             <!-- Image -->
             <div class="relative h-48 overflow-hidden">
@@ -76,9 +79,13 @@
               <!-- Read More -->
               <button
                 class="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 font-semibold group-hover:gap-3 transition-all"
+                (click)="openModal(post, $event)"
               >
                 Lire la suite
-                <lucide-icon [name]="arrowRightIcon" class="w-4 h-4"></lucide-icon>
+                <lucide-icon
+                  [name]="arrowRightIcon"
+                  class="w-4 h-4 transition-transform"
+                ></lucide-icon>
               </button>
             </div>
           </article>
@@ -89,4 +96,75 @@
 
   <app-footer></app-footer>
 </div>
+
+<!-- Blog Post Modal -->
+@if (showModal && selectedPost) {
+  <div
+    class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
+    (click)="closeModal()"
+  >
+    <div
+      class="rounded-2xl border border-slate-800 max-w-4xl w-full my-8 shadow-2xl max-h-[90vh] flex flex-col"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Modal Header -->
+      <div class="relative flex-shrink-0">
+        <img
+          [src]="selectedPost.image"
+          [alt]="selectedPost.title"
+          class="w-full h-64 md:h-80 object-cover rounded-t-2xl"
+        />
+        <div class="absolute top-4 left-4 px-3 py-1 bg-gradient-to-r from-cyan-500/90 to-emerald-500/90 rounded-full text-white text-xs font-semibold">
+          {{ selectedPost.category }}
+        </div>
+        <button
+          (click)="closeModal()"
+          class="absolute top-4 right-4 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+        >
+          <span class="text-2xl">×</span>
+        </button>
+      </div>
+
+      <!-- Modal Content -->
+      <div class="p-6 md:p-8 overflow-y-auto flex-1">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+          {{ selectedPost.title }}
+        </h2>
+
+        <!-- Meta Info -->
+        <div class="flex flex-wrap items-center gap-4 text-sm text-slate-400 mb-6 pb-6 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <lucide-icon [name]="userIcon" class="w-4 h-4"></lucide-icon>
+            <span>{{ selectedPost.author }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <lucide-icon [name]="calendarIcon" class="w-4 h-4"></lucide-icon>
+            <span>{{ formatDate(selectedPost.date) }}</span>
+          </div>
+        </div>
+
+        <!-- Excerpt -->
+        <p class="text-lg text-slate-300 mb-6 font-medium">
+          {{ selectedPost.excerpt }}
+        </p>
+
+        <!-- Full Content -->
+        <div class="prose prose-invert max-w-none mb-6">
+          <p class="text-slate-300 leading-relaxed whitespace-pre-wrap">
+            {{ selectedPost.content }}
+          </p>
+        </div>
+
+        <!-- Tags -->
+        <div class="flex flex-wrap gap-2 pt-6 border-t border-slate-800">
+          @for (tag of selectedPost.tags; track tag) {
+            <span class="px-3 py-1 bg-slate-800 rounded-full border border-slate-700 text-slate-300 text-sm">
+              #{{ tag }}
+            </span>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}
 

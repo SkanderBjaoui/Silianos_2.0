@@ -1,33 +1,37 @@
 <nav
-  [class]="'fixed w-full z-50 transition-all duration-500 ' + (scrolled ? 'bg-slate-900/80 backdrop-blur-xl shadow-lg border-b border-slate-800/60' : 'bg-transparent')"
+  [class]="'fixed w-full z-[9999] transition-all duration-500 ' + (shouldShowStickyBackground() ? 'bg-slate-900/80 backdrop-blur-xl shadow-lg border-b border-slate-800/60' : 'bg-transparent')"
+  style="pointer-events: auto;"
 >
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-20">
+  <div class="w-full relative" style="pointer-events: auto;">
+    <div class="flex justify-between items-center h-20 px-2 md:px-4 relative overflow-hidden" style="pointer-events: auto; position: relative; z-index: 1; min-width: 0;">
       <!-- Logo -->
-      <a routerLink="/" class="flex items-center space-x-3 group cursor-pointer">
+      <a routerLink="/" class="flex items-center space-x-2 md:space-x-3 group cursor-pointer flex-shrink-0 min-w-0" (click)="scrollToTop($event)">
         <img
-          src="assets/logo.png"
+          src="assets/@silianos_logo.png"
           alt="Silianos Voyage"
-          [class]="'h-12 w-12 object-contain rounded-lg group-hover:scale-110 transition-all duration-300 ' + (scrolled ? 'brightness-100' : 'brightness-100')"
+          [class]="'h-12 w-12 md:h-16 md:w-16 object-contain rounded-full bg-white p-2 shadow-lg ring-2 ring-white/80 group-hover:scale-110 transition-all duration-300 flex-shrink-0 ' + (scrolled ? 'brightness-100' : 'brightness-100')"
         />
-        <span [class]="'text-2xl font-premium font-bold transition-colors duration-500 ' + (scrolled ? 'text-slate-100' : 'text-white')">
+        <span [class]="'text-lg md:text-2xl font-premium font-bold transition-colors duration-500 whitespace-nowrap ' + (shouldShowStickyBackground() ? 'text-slate-100' : 'text-white')">
           Silianos
         </span>
       </a>
 
       <!-- Desktop Navigation -->
-      <div class="hidden md:flex items-center space-x-1">
+      <div class="hidden md:flex items-center space-x-1" style="pointer-events: auto; position: relative; z-index: 10000;">
         @for (item of navItems; track $index) {
           @if (isDropdown(item)) {
             <div 
               class="relative group dropdown-container"
               (mouseenter)="openDropdown(item.label)"
               (mouseleave)="closeDropdown(item.label)"
+              style="z-index: 99999; position: relative;"
             >
               <a
                 [routerLink]="item.href"
                 class="dropdown-button inline-flex items-center"
-                [class]="'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 relative gap-1 ' + (scrolled ? 'text-slate-200 hover:text-cyan-300' : 'text-white hover:text-cyan-300')"
+                [attr.data-label]="item.label"
+                [class]="'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 relative gap-1 ' + (shouldShowStickyBackground() ? 'text-slate-200 hover:text-cyan-300' : 'text-white hover:text-cyan-300')"
+                (click)="handleDropdownClick(item, $event)"
               >
                 {{ item.label }}
                 <lucide-icon 
@@ -37,28 +41,6 @@
                 <div class="absolute bottom-0 left-0 h-1 w-0 group-hover:w-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all duration-300"></div>
               </a>
               
-              @if (isDropdownOpen(item.label)) {
-                <div 
-                  class="absolute top-full left-0 w-56 z-50 pt-2"
-                  (mouseenter)="openDropdown(item.label)"
-                  (mouseleave)="closeDropdown(item.label)"
-                >
-                  <div class="bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-800 overflow-hidden animate-slide-down">
-                    <div class="py-2">
-                      @for (link of item.links; track link.label) {
-                        <a
-                          [routerLink]="link.href"
-                          [fragment]="link.anchor ? link.anchor.replace('#', '') : undefined"
-                          (click)="handleNavClick(link, $event)"
-                          class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-cyan-300 transition-colors"
-                        >
-                          {{ link.label }}
-                        </a>
-                      }
-                    </div>
-                  </div>
-                </div>
-              }
             </div>
           } @else if (isLink(item)) {
             @if (item.anchor) {
@@ -66,7 +48,7 @@
                 [routerLink]="item.href"
                 [fragment]="item.anchor.replace('#', '')"
                 (click)="handleNavClick(item, $event)"
-                [class]="'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 relative group ' + (scrolled ? 'text-slate-200 hover:text-cyan-300' : 'text-white hover:text-cyan-300')"
+                [class]="'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 relative group ' + (shouldShowStickyBackground() ? 'text-slate-200 hover:text-cyan-300' : 'text-white hover:text-cyan-300')"
               >
                 {{ item.label }}
                 <div class="absolute bottom-0 left-0 h-1 w-0 group-hover:w-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all duration-300"></div>
@@ -74,7 +56,8 @@
             } @else {
               <a
                 [routerLink]="item.href"
-                [class]="'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 relative group ' + (scrolled ? 'text-slate-200 hover:text-cyan-300' : 'text-white hover:text-cyan-300')"
+                [class]="'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 relative group ' + (shouldShowStickyBackground() ? 'text-slate-200 hover:text-cyan-300' : 'text-white hover:text-cyan-300')"
+                (click)="handleRouteNav(item.href, $event)"
               >
                 {{ item.label }}
                 <div class="absolute bottom-0 left-0 h-1 w-0 group-hover:w-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all duration-300"></div>
@@ -82,33 +65,271 @@
             }
           }
         }
+        
+        <!-- Auth Buttons / User Menu - Right Side -->
+        <div class="ml-auto">
+          @if (currentUser) {
+            <div class="relative user-menu-container" style="z-index: 99999; position: relative;">
+              <button
+                (click)="toggleUserMenu($event)"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 relative group"
+                [class]="(shouldShowStickyBackground() ? 'text-slate-200 hover:text-cyan-300' : 'text-white hover:text-cyan-300')"
+              >
+                <lucide-icon [name]="userIcon" class="w-4 h-4"></lucide-icon>
+                {{ currentUser.name }}
+                <lucide-icon
+                  [name]="chevronDownIcon"
+                  [class]="'w-4 h-4 transition-transform duration-300 ' + (userMenuOpen ? 'rotate-180' : '')"
+                ></lucide-icon>
+              </button>
+              
+              <!-- User menu trigger for positioning -->
+              <div 
+                #userMenuTrigger
+                class="user-menu-trigger"
+                style="display: none;"
+              ></div>
+            </div>
+          } @else {
+            <a
+              routerLink="/login"
+              class="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-cyan-500 to-emerald-500 text-white hover:shadow-lg hover:scale-105 transition-all duration-300"
+            >
+              Connexion
+            </a>
+          }
+        </div>
       </div>
 
-      <!-- Mobile Menu Button -->
-      <button
-        (click)="toggleMenu()"
-        [class]="'md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors ' + (scrolled ? 'text-slate-100' : 'text-white')"
-      >
-        @if (isOpen) {
-          <lucide-icon [name]="xIcon" class="w-6 h-6"></lucide-icon>
-        } @else {
-          <lucide-icon [name]="menuIcon" class="w-6 h-6"></lucide-icon>
-        }
-      </button>
+      <!-- Mobile Menu Button - Right Side -->
+      <div class="md:hidden flex items-center ml-auto flex-shrink-0 mr-16">
+        <button
+          (click)="toggleMenu($event)"
+          (mousedown)="toggleMenu($event)"
+          (touchstart)="toggleMenu($event)"
+          type="button"
+          class="flex items-center justify-center p-2 rounded-lg border border-emerald-500/40 bg-gradient-to-r from-emerald-600/40 to-red-500/40 hover:from-emerald-500/60 hover:to-red-500/60 transition-colors shadow-lg shadow-emerald-500/20 mobile-menu-btn flex-shrink-0 mr-16"
+          style="z-index: 99999 !important; pointer-events: auto !important;"
+          [class.text-slate-100]="shouldShowStickyBackground()"
+          [class.text-white]="!shouldShowStickyBackground()"
+        >
+          @if (isOpen) {
+            <lucide-icon [name]="xIcon" class="w-6 h-6 pointer-events-none"></lucide-icon>
+          } @else {
+            <lucide-icon [name]="menuIcon" class="w-6 h-6 pointer-events-none"></lucide-icon>
+          }
+        </button>
+      </div>
     </div>
   </div>
+</nav>
 
-  <!-- Mobile Navigation -->
-  @if (isOpen) {
-    <div class="md:hidden bg-slate-900/90 backdrop-blur-xl border-t border-slate-800/60 animate-slide-down max-h-[calc(100vh-5rem)] overflow-y-auto">
+<!-- Dropdowns rendered outside nav to escape stacking context -->
+@for (item of navItems; track $index) {
+  @if (isDropdown(item) && isDropdownOpen(item.label)) {
+    <div 
+      class="fixed w-56 pt-2 z-[10000]"
+      (mouseenter)="openDropdown(item.label)"
+      (mouseleave)="closeDropdown(item.label)"
+      [style.top.px]="getDropdownPosition(item.label)?.top"
+      [style.left.px]="getDropdownPosition(item.label)?.left"
+      style="z-index: 10000 !important;"
+    >
+      <div class="bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-800 overflow-hidden animate-slide-down">
+        <div class="py-2">
+          @for (link of item.links; track link.label) {
+            <a
+              [routerLink]="link.href"
+              [fragment]="link.anchor ? link.anchor.replace('#', '') : undefined"
+              (click)="handleNavClick(link, $event)"
+              class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-cyan-300 transition-colors"
+            >
+              {{ link.label }}
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  }
+}
+
+@if (currentUser && userMenuOpen) {
+  <div 
+    class="fixed w-48 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-800 overflow-hidden animate-slide-down z-[10000] mt-2"
+    (mouseenter)="userMenuOpen = true"
+    (mouseleave)="userMenuOpen = false"
+    [style.top.px]="getUserMenuPosition()?.top"
+    [style.right.px]="getUserMenuPosition()?.right"
+    style="z-index: 10000 !important;"
+  >
+    <a
+      routerLink="/dashboard"
+      (click)="userMenuOpen = false"
+      class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-cyan-300 transition-colors"
+    >
+      Mon Tableau de Bord
+    </a>
+    <button
+      (click)="logout()"
+      class="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-red-400 transition-colors flex items-center gap-2"
+    >
+      <lucide-icon [name]="logoutIcon" class="w-4 h-4"></lucide-icon>
+      Déconnexion
+    </button>
+  </div>
+}
+
+<!-- Mobile Menu Modal - Outside nav to avoid stacking context issues -->
+@if (isOpen) {
+  <div class="md:hidden fixed inset-0 z-[9999]" style="z-index: 9999 !important;">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/70 backdrop-blur-md" (click)="toggleMenu()" style="z-index: 1;"></div>
+    
+    <!-- Modal Content -->
+    <div class="relative z-10 h-full bg-slate-900/95 backdrop-blur-xl overflow-y-auto animate-slide-down" style="z-index: 2;">
+      <!-- Modal Header with Close Button -->
+      <div class="sticky top-0 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/60 px-4 py-4 flex items-center justify-between z-10">
+        <h2 class="text-xl font-bold text-white">Menu</h2>
+        <button
+          (click)="toggleMenu()"
+          class="p-2 rounded-lg text-white hover:bg-slate-800 transition-colors"
+          aria-label="Fermer le menu"
+        >
+          <lucide-icon [name]="xIcon" class="w-6 h-6"></lucide-icon>
+        </button>
+      </div>
+      
+      <!-- Menu Content -->
       <div class="px-4 py-6 space-y-2">
+        <!-- Auth Buttons / User Menu (Mobile) -->
+        @if (currentUser) {
+          <div class="border-b border-slate-800 pb-4 mb-4">
+            <p class="text-slate-400 text-sm mb-2">Connecté en tant que</p>
+            <p class="text-white font-semibold mb-3">{{ currentUser.name }}</p>
+            
+            <!-- Dashboard Menu with Dropdown -->
+            <div>
+              <div class="flex items-center">
+                <a
+                  routerLink="/dashboard"
+                  (click)="isOpen = false"
+                  class="flex-1 px-4 py-2 rounded-lg text-slate-200 hover:bg-gradient-to-r hover:from-slate-800 hover:to-slate-700 hover:text-cyan-300 transition-all font-medium"
+                >
+                  Mon Tableau de Bord
+                </a>
+                <button
+                  (click)="toggleDashboardMenu($event)"
+                  class="px-2 py-2 rounded-lg text-slate-200 hover:bg-gradient-to-r hover:from-slate-800 hover:to-slate-700 hover:text-cyan-300 transition-all"
+                >
+                  <lucide-icon 
+                    [name]="chevronDownIcon" 
+                    [class]="'w-4 h-4 transition-transform duration-300 ' + (dashboardMenuOpen ? 'rotate-180' : '')"
+                  ></lucide-icon>
+                </button>
+              </div>
+              
+              @if (dashboardMenuOpen) {
+                <div class="pl-4 pr-2 py-2 space-y-1">
+                  <a
+                    routerLink="/dashboard"
+                    [fragment]="'overview'"
+                    (click)="isOpen = false"
+                    class="flex items-center gap-2 block px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-cyan-300 transition-colors"
+                  >
+                    <lucide-icon [name]="layoutIcon" class="w-4 h-4"></lucide-icon>
+                    Vue d'ensemble
+                  </a>
+                  <a
+                    routerLink="/dashboard"
+                    [fragment]="'reservations'"
+                    (click)="isOpen = false"
+                    class="flex items-center gap-2 block px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-cyan-300 transition-colors"
+                  >
+                    <lucide-icon [name]="calendarIcon" class="w-4 h-4"></lucide-icon>
+                    Mes Réservations
+                  </a>
+                  <a
+                    routerLink="/dashboard"
+                    [fragment]="'payments'"
+                    (click)="isOpen = false"
+                    class="flex items-center gap-2 block px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-cyan-300 transition-colors"
+                  >
+                    <lucide-icon [name]="creditCardIcon" class="w-4 h-4"></lucide-icon>
+                    Paiements
+                  </a>
+                  <a
+                    routerLink="/dashboard"
+                    [fragment]="'profile'"
+                    (click)="isOpen = false"
+                    class="flex items-center gap-2 block px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-cyan-300 transition-colors"
+                  >
+                    <lucide-icon [name]="userIcon" class="w-4 h-4"></lucide-icon>
+                    Mon Profil
+                  </a>
+                  <a
+                    routerLink="/dashboard"
+                    [fragment]="'favorites'"
+                    (click)="isOpen = false"
+                    class="flex items-center gap-2 block px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-cyan-300 transition-colors"
+                  >
+                    <lucide-icon [name]="heartIcon" class="w-4 h-4"></lucide-icon>
+                    Favoris
+                  </a>
+                  <a
+                    routerLink="/dashboard"
+                    [fragment]="'notifications'"
+                    (click)="isOpen = false"
+                    class="flex items-center gap-2 block px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-cyan-300 transition-colors"
+                  >
+                    <lucide-icon [name]="bellIcon" class="w-4 h-4"></lucide-icon>
+                    Notifications
+                  </a>
+                  <a
+                    routerLink="/dashboard"
+                    [fragment]="'support'"
+                    (click)="isOpen = false"
+                    class="flex items-center gap-2 block px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-slate-800 hover:text-cyan-300 transition-colors"
+                  >
+                    <lucide-icon [name]="helpCircleIcon" class="w-4 h-4"></lucide-icon>
+                    Support
+                  </a>
+                </div>
+              }
+            </div>
+            
+            <button
+              (click)="logout(); isOpen = false"
+              class="w-full text-left px-4 py-2 rounded-lg text-slate-200 hover:bg-gradient-to-r hover:from-slate-800 hover:to-slate-700 hover:text-red-400 transition-all font-medium flex items-center gap-2 mt-2"
+            >
+              <lucide-icon [name]="logoutIcon" class="w-4 h-4"></lucide-icon>
+              Déconnexion
+            </button>
+          </div>
+        } @else {
+          <div class="border-b border-slate-800 pb-4 mb-4 space-y-2">
+            <a
+              routerLink="/login"
+              (click)="isOpen = false"
+              class="block px-4 py-3 rounded-lg text-slate-200 hover:bg-gradient-to-r hover:from-slate-800 hover:to-slate-700 hover:text-cyan-300 transition-all font-medium"
+            >
+              Connexion
+            </a>
+            <a
+              routerLink="/signup"
+              (click)="isOpen = false"
+              class="block px-4 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-emerald-500 text-white hover:shadow-lg transition-all font-medium text-center"
+            >
+              Inscription
+            </a>
+          </div>
+        }
         @for (item of navItems; track $index) {
           @if (isDropdown(item)) {
             <div>
               <div class="flex items-center">
                 <a
                   [routerLink]="item.href"
-                  (click)="isOpen = false"
+                  (click)="handleDropdownClick(item, $event)"
                   class="flex-1 px-4 py-3 rounded-lg text-slate-200 hover:bg-gradient-to-r hover:from-slate-800 hover:to-slate-700 hover:text-cyan-300 transition-all font-medium"
                 >
                   {{ item.label }}
@@ -152,7 +373,7 @@
             } @else {
               <a
                 [routerLink]="item.href"
-                (click)="isOpen = false"
+                (click)="handleRouteNav(item.href, $event)"
                 class="block px-4 py-3 rounded-lg text-slate-200 hover:bg-gradient-to-r hover:from-slate-800 hover:to-slate-700 hover:text-cyan-300 transition-all font-medium"
               >
                 {{ item.label }}
@@ -162,5 +383,5 @@
         }
       </div>
     </div>
-  }
-</nav>
+  </div>
+}

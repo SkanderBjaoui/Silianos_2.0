@@ -2,7 +2,7 @@
   <app-navbar></app-navbar>
 
   @if (service) {
-    <section class="pt-32 pb-20 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+    <section class="pt-32 pb-32 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden scroll-reveal" data-reveal-delay="80ms">
       <!-- Decorative Elements -->
       <div class="absolute top-0 left-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-15 -translate-x-1/2 -translate-y-1/2"></div>
       <div class="absolute bottom-0 right-0 w-96 h-96 bg-emerald-200 rounded-full blur-3xl opacity-15 translate-x-1/2 translate-y-1/2"></div>
@@ -11,14 +11,15 @@
         <!-- Back Button -->
         <a
           routerLink="/services"
-          class="inline-flex items-center gap-2 text-slate-300 hover:text-white mb-8 transition-colors"
+          class="inline-flex items-center gap-2 text-slate-300 hover:text-white mb-8 transition-colors scroll-reveal"
+          data-reveal-delay="140ms"
         >
           <lucide-icon [name]="arrowLeftIcon" class="w-5 h-5"></lucide-icon>
           <span>Retour aux services</span>
         </a>
 
         <!-- Hero Section -->
-        <div class="mb-16">
+        <div class="mb-16 scroll-reveal" data-reveal-delay="160ms">
           <div class="relative h-96 rounded-3xl overflow-hidden border border-slate-800 shadow-2xl">
             <img
               [src]="service.image"
@@ -38,11 +39,11 @@
         </div>
 
         <!-- Content Grid -->
-        <div class="grid lg:grid-cols-3 gap-8">
+        <div class="grid lg:grid-cols-3 gap-8 scroll-reveal" data-reveal-delay="220ms">
           <!-- Main Content -->
           <div class="lg:col-span-2 space-y-8">
             <!-- Description -->
-            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 border border-slate-800">
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 border border-slate-800 scroll-reveal" data-reveal-delay="260ms">
               <h2 class="text-2xl font-bold text-white mb-4">À propos de ce service</h2>
               <p class="text-slate-300 leading-relaxed">
                 {{ service.fullDescription }}
@@ -50,7 +51,7 @@
             </div>
 
             <!-- Benefits -->
-            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 border border-slate-800">
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 border border-slate-800 scroll-reveal" data-reveal-delay="300ms">
               <h2 class="text-2xl font-bold text-white mb-6">Avantages</h2>
               <div class="space-y-4">
                 @for (benefit of service.benefits; track benefit) {
@@ -68,7 +69,7 @@
           <!-- Sidebar -->
           <div class="space-y-6">
             <!-- Features Card -->
-            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-6 border border-slate-800">
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-6 border border-slate-800 scroll-reveal" data-reveal-delay="340ms">
               <h3 class="text-xl font-bold text-white mb-4">Caractéristiques</h3>
               <div class="space-y-3">
                 @for (feature of service.features; track feature) {
@@ -81,7 +82,7 @@
             </div>
 
             <!-- CTA Card -->
-            <div [class]="'bg-gradient-to-br ' + service.color + ' rounded-3xl p-6 text-white'">
+            <div [class]="'bg-gradient-to-br ' + service.color + ' rounded-3xl p-6 text-white scroll-reveal'" data-reveal-delay="380ms">
               <h3 class="text-xl font-bold mb-4">Intéressé par ce service?</h3>
               <p class="text-white/90 mb-6">
                 Contactez-nous dès maintenant pour obtenir un devis personnalisé
@@ -98,7 +99,7 @@
       </div>
     </section>
   } @else {
-    <section class="pt-32 pb-20 text-center">
+    <section class="pt-32 pb-32 text-center scroll-reveal">
       <h1 class="text-4xl font-bold text-white mb-4">Service non trouvé</h1>
       <a routerLink="/services" class="text-cyan-400 hover:text-cyan-300">Retour aux services</a>
     </section>

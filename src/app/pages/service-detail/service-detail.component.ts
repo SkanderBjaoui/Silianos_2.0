@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { LucideAngularModule, Check, ArrowLeft } from 'lucide-angular';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { ServicesComponent } from '../../components/services/services.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-service-detail',
@@ -13,7 +14,7 @@ import { ServicesComponent } from '../../components/services/services.component'
   templateUrl: './service-detail.component.html',
   styleUrl: './service-detail.component.css'
 })
-export class ServiceDetailComponent implements OnInit {
+export class ServiceDetailComponent implements OnInit, OnDestroy {
   checkIcon = Check;
   arrowLeftIcon = ArrowLeft;
   serviceId: string | null = null;
@@ -82,11 +83,20 @@ export class ServiceDetailComponent implements OnInit {
     },
   ];
 
+  private routeSub?: Subscription;
+
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit() {
-    this.serviceId = this.route.snapshot.paramMap.get('id');
-    this.service = this.services.find(s => s.id === this.serviceId);
+    this.routeSub = this.route.paramMap.subscribe(params => {
+      this.serviceId = params.get('id');
+      this.service = this.services.find(s => s.id === this.serviceId);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  ngOnDestroy() {
+    this.routeSub?.unsubscribe();
   }
 }
 

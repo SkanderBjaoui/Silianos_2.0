@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 export interface Booking {
   id: string;
+  userId?: string;
   customerName: string;
   email: string;
   phone: string;
@@ -13,6 +14,8 @@ export interface Booking {
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   createdAt: string;
   notes?: string;
+  paymentStatus?: 'pending' | 'approved' | 'paid' | 'failed';
+  totalAmount?: number;
 }
 
 export interface Testimonial {
@@ -65,6 +68,7 @@ export class DataService {
   private bookings: Booking[] = [
     {
       id: '1',
+      userId: '1',
       customerName: 'Ahmed Ben Ali',
       email: 'ahmed@example.com',
       phone: '+216 98 123 456',
@@ -75,7 +79,9 @@ export class DataService {
       numberOfTravelers: 2,
       status: 'confirmed',
       createdAt: '2025-01-10T10:00:00',
-      notes: 'Préférence pour hôtel proche de la mosquée'
+      notes: 'Préférence pour hôtel proche de la mosquée',
+      paymentStatus: 'approved',
+      totalAmount: 2500
     },
     {
       id: '2',
@@ -254,7 +260,10 @@ export class DataService {
   ];
 
   // Bookings
-  getBookings(): Booking[] {
+  getBookings(userId?: string): Booking[] {
+    if (userId) {
+      return this.bookings.filter(b => b.userId === userId);
+    }
     return [...this.bookings];
   }
 
@@ -277,6 +286,17 @@ export class DataService {
     const booking = this.bookings.find(b => b.id === id);
     if (booking) {
       booking.status = status;
+      // When admin confirms, set payment status to approved
+      if (status === 'confirmed' && !booking.paymentStatus) {
+        booking.paymentStatus = 'approved';
+      }
+    }
+  }
+
+  updateBookingPaymentStatus(id: string, paymentStatus: Booking['paymentStatus']): void {
+    const booking = this.bookings.find(b => b.id === id);
+    if (booking) {
+      booking.paymentStatus = paymentStatus;
     }
   }
 
@@ -311,6 +331,26 @@ export class DataService {
 
   getBlogPost(id: string): BlogPost | undefined {
     return this.blogPosts.find(p => p.id === id);
+  }
+
+  addBlogPost(post: Omit<BlogPost, 'id'>): BlogPost {
+    const newPost: BlogPost = {
+      ...post,
+      id: Date.now().toString()
+    };
+    this.blogPosts = [newPost, ...this.blogPosts];
+    return newPost;
+  }
+
+  updateBlogPost(updatedPost: BlogPost): void {
+    const index = this.blogPosts.findIndex(p => p.id === updatedPost.id);
+    if (index !== -1) {
+      this.blogPosts[index] = { ...updatedPost };
+    }
+  }
+
+  deleteBlogPost(id: string): void {
+    this.blogPosts = this.blogPosts.filter(p => p.id !== id);
   }
 
   // Contact Messages

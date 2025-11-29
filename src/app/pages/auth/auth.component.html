@@ -1,0 +1,306 @@
+<div class="min-h-screen bg-slate-950 text-slate-100 overflow-x-hidden">
+  <app-navbar></app-navbar>
+
+  <div class="absolute top-20 left-0 right-0 overflow-x-hidden" style="height: calc(100vh - 5rem);">
+    <!-- Split Screen Container -->
+    <div class="relative flex overflow-x-hidden h-full">
+      <!-- Left Side - Signup Form (always left) or Design Panel (when login mode) -->
+      <div class="absolute top-0 left-0 w-full md:w-1/2 h-full overflow-hidden" id="leftBox">
+        <!-- Signup Form - Fixed on Left -->
+        <div 
+          class="absolute top-0 left-0 right-0 h-full bg-slate-900 flex items-center justify-center p-4 md:p-8 transition-opacity duration-700 ease-in-out overflow-y-auto custom-scrollbar"
+          [class]="!isLoginMode ? 'opacity-100 z-20' : 'opacity-0 z-0 pointer-events-none'"
+          id="signupForm"
+        >
+          <div class="w-full max-w-md pt-4 md:pt-20">
+            <div class="mb-6 md:mb-8">
+              <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Créer un compte</h1>
+              <p class="text-slate-400 text-sm md:text-base">Rejoignez Silianos Voyage</p>
+            </div>
+
+            @if (error && !isLoginMode) {
+              <div class="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-xl text-red-400 text-sm">
+                {{ error }}
+              </div>
+            }
+
+            <form (ngSubmit)="onSignup()" class="space-y-4 md:space-y-6">
+              <div>
+                <label class="block text-sm font-semibold text-slate-300 mb-2">
+                  Nom complet <span class="text-red-400">*</span>
+                </label>
+                <div class="relative">
+                  <lucide-icon [name]="userIcon" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></lucide-icon>
+                  <input
+                    type="text"
+                    [(ngModel)]="signupName"
+                    name="signupName"
+                    required
+                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
+                    placeholder="Votre nom"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-300 mb-2">
+                  Email <span class="text-red-400">*</span>
+                </label>
+                <div class="relative">
+                  <lucide-icon [name]="mailIcon" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></lucide-icon>
+                  <input
+                    type="email"
+                    [(ngModel)]="signupEmail"
+                    name="signupEmail"
+                    required
+                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
+                    placeholder="votre@email.com"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-300 mb-2">
+                  Téléphone
+                </label>
+                <div class="relative">
+                  <lucide-icon [name]="phoneIcon" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></lucide-icon>
+                  <input
+                    type="tel"
+                    [(ngModel)]="signupPhone"
+                    name="signupPhone"
+                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
+                    placeholder="+216 XX XXX XXX"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-300 mb-2">
+                  Mot de passe <span class="text-red-400">*</span>
+                </label>
+                <div class="relative">
+                  <lucide-icon [name]="lockIcon" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></lucide-icon>
+                  <input
+                    type="password"
+                    [(ngModel)]="signupPassword"
+                    name="signupPassword"
+                    required
+                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-300 mb-2">
+                  Confirmer le mot de passe <span class="text-red-400">*</span>
+                </label>
+                <div class="relative">
+                  <lucide-icon [name]="lockIcon" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></lucide-icon>
+                  <input
+                    type="password"
+                    [(ngModel)]="signupConfirmPassword"
+                    name="signupConfirmPassword"
+                    required
+                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                [disabled]="loading"
+                class="w-full py-3 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                @if (loading && !isLoginMode) {
+                  <span class="animate-spin">⏳</span>
+                } @else {
+                  <lucide-icon [name]="userPlusIcon" class="w-5 h-5"></lucide-icon>
+                }
+                Créer mon compte
+              </button>
+            </form>
+
+            <div class="mt-6 text-center">
+              <p class="text-slate-400 text-sm">
+                Déjà un compte?
+                <button
+                  (click)="switchMode()"
+                  class="text-cyan-400 hover:text-cyan-300 font-semibold ml-1 transition-colors"
+                >
+                  Se connecter
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Design Panel for Login Mode - Slides in from left -->
+        <div 
+          class="hidden md:block absolute top-0 left-0 right-0 h-full transition-transform duration-1000 ease-in-out overflow-hidden"
+          [class]="isLoginMode ? 'translate-x-0' : '-translate-x-full'"
+          id="leftDesign"
+        >
+          <div class="relative w-full h-full bg-gradient-to-br from-cyan-600 via-blue-700 to-emerald-600 overflow-hidden">
+            <!-- Background Image -->
+            <div 
+              class="absolute inset-0 bg-cover bg-center opacity-30 transition-opacity duration-1000"
+              style="background-image: url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=80');"
+            ></div>
+            
+            <!-- Overlay Gradient -->
+            <div class="absolute inset-0 bg-gradient-to-br from-slate-900/60 via-slate-800/40 to-slate-900/60"></div>
+            
+            <!-- Content -->
+            <div class="relative h-full flex flex-col items-center justify-center p-12 text-white z-10">
+              <div class="max-w-md text-center space-y-6 transform transition-all duration-700"
+                   [class]="isLoginMode ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'">
+                <h2 class="text-5xl font-bold mb-4">Bienvenue!</h2>
+                <p class="text-xl text-slate-200 mb-8">
+                  Découvrez des destinations extraordinaires avec Silianos Voyage
+                </p>
+                <button
+                  (click)="switchMode()"
+                  class="inline-flex items-center gap-2 px-6 py-3 bg-white/20 backdrop-blur-md rounded-xl text-white font-semibold hover:bg-white/30 transition-all border border-white/30 hover:scale-105"
+                >
+                  Créer un compte
+                  <lucide-icon [name]="arrowRightIcon" class="w-5 h-5"></lucide-icon>
+                </button>
+              </div>
+            </div>
+
+            <!-- Decorative Elements -->
+            <div class="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side - Login Form (always right) or Design Panel (when signup mode) -->
+      <div class="absolute top-0 left-0 md:left-1/2 w-full md:w-1/2 h-full overflow-hidden" id="rightBox">
+        <!-- Login Form - Fixed on Right -->
+        <div 
+          class="absolute top-0 left-0 right-0 h-full bg-slate-900 flex items-center justify-center p-4 md:p-8 transition-opacity duration-700 ease-in-out overflow-y-auto custom-scrollbar"
+          [class]="isLoginMode ? 'opacity-100 z-20' : 'opacity-0 z-0 pointer-events-none'"
+          id="loginForm"
+        >
+          <div class="w-full max-w-md">
+            <div class="mb-6 md:mb-8">
+              <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Connexion</h1>
+              <p class="text-slate-400 text-sm md:text-base">Connectez-vous à votre compte</p>
+            </div>
+
+            @if (error && isLoginMode) {
+              <div class="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-xl text-red-400 text-sm">
+                {{ error }}
+              </div>
+            }
+
+            <form (ngSubmit)="onLogin()" class="space-y-4 md:space-y-6">
+              <div>
+                <label class="block text-sm font-semibold text-slate-300 mb-2">
+                  Email
+                </label>
+                <div class="relative">
+                  <lucide-icon [name]="mailIcon" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></lucide-icon>
+                  <input
+                    type="email"
+                    [(ngModel)]="loginEmail"
+                    name="loginEmail"
+                    required
+                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
+                    placeholder="votre@email.com"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-300 mb-2">
+                  Mot de passe
+                </label>
+                <div class="relative">
+                  <lucide-icon [name]="lockIcon" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></lucide-icon>
+                  <input
+                    type="password"
+                    [(ngModel)]="loginPassword"
+                    name="loginPassword"
+                    required
+                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                [disabled]="loading"
+                class="w-full py-3 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                @if (loading && isLoginMode) {
+                  <span class="animate-spin">⏳</span>
+                } @else {
+                  <lucide-icon [name]="loginIcon" class="w-5 h-5"></lucide-icon>
+                }
+                Se connecter
+              </button>
+            </form>
+
+            <div class="mt-6 text-center">
+              <p class="text-slate-400 text-sm">
+                Pas encore de compte?
+                <button
+                  (click)="switchMode()"
+                  class="text-cyan-400 hover:text-cyan-300 font-semibold ml-1 transition-colors"
+                >
+                  Créer un compte
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Design Panel for Signup Mode - Slides in from right -->
+        <div 
+          class="hidden md:block absolute top-0 left-0 right-0 h-full transition-transform duration-1000 ease-in-out overflow-hidden"
+          [class]="!isLoginMode ? 'translate-x-0' : 'translate-x-full'"
+          id="rightDesign"
+        >
+          <div class="relative w-full h-full bg-gradient-to-br from-emerald-600 via-cyan-700 to-blue-600 overflow-hidden">
+            <!-- Background Image -->
+            <div 
+              class="absolute inset-0 bg-cover bg-center opacity-30 transition-opacity duration-1000"
+              style="background-image: url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920&q=80');"
+            ></div>
+            
+            <!-- Overlay Gradient -->
+            <div class="absolute inset-0 bg-gradient-to-br from-slate-900/60 via-slate-800/40 to-slate-900/60"></div>
+            
+            <!-- Content -->
+            <div class="relative h-full flex flex-col items-center justify-center p-12 text-white z-10">
+              <div class="max-w-md text-center space-y-6 transform transition-all duration-700"
+                   [class]="!isLoginMode ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'">
+                <h2 class="text-5xl font-bold mb-4">Rejoignez-nous</h2>
+                <p class="text-xl text-slate-200 mb-8">
+                  Créez votre compte et commencez votre aventure dès aujourd'hui
+                </p>
+                <button
+                  (click)="switchMode()"
+                  class="inline-flex items-center gap-2 px-6 py-3 bg-white/20 backdrop-blur-md rounded-xl text-white font-semibold hover:bg-white/30 transition-all border border-white/30 hover:scale-105"
+                >
+                  Se connecter
+                  <lucide-icon [name]="arrowRightIcon" class="w-5 h-5"></lucide-icon>
+                </button>
+              </div>
+            </div>
+
+            <!-- Decorative Elements -->
+            <div class="absolute top-20 right-20 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-20 left-20 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

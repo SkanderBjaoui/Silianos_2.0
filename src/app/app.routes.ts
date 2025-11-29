@@ -16,6 +16,9 @@ import { AdminServicesComponent } from './admin/admin-services/admin-services.co
 import { AdminPricingComponent } from './admin/admin-pricing/admin-pricing.component';
 import { AdminTestimonialsComponent } from './admin/admin-testimonials/admin-testimonials.component';
 import { AdminMessagesComponent } from './admin/admin-messages/admin-messages.component';
+import { AdminBlogComponent } from './admin/admin-blog/admin-blog.component';
+import { AuthComponent } from './pages/auth/auth.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -27,6 +30,9 @@ export const routes: Routes = [
   { path: 'blog', component: BlogComponent },
   { path: 'privacy', component: PrivacyComponent },
   { path: 'terms', component: TermsComponent },
+  { path: 'login', component: AuthComponent },
+  { path: 'signup', component: AuthComponent },
+  { path: 'dashboard', component: DashboardComponent },
   { path: 'admin/login', component: AdminLoginComponent },
   {
     path: 'admin',
@@ -38,6 +44,7 @@ export const routes: Routes = [
       { path: 'pricing', component: AdminPricingComponent },
       { path: 'testimonials', component: AdminTestimonialsComponent },
       { path: 'messages', component: AdminMessagesComponent },
+      { path: 'blog', component: AdminBlogComponent },
     ]
   },
   { path: '**', redirectTo: '' }

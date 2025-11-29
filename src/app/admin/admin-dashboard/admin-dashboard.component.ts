@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
-import { LucideAngularModule, LogOut, LayoutDashboard, Calendar, Package, DollarSign, MessageSquare, Star, Menu, X } from 'lucide-angular';
+import { LucideAngularModule, LogOut, LayoutDashboard, Calendar, Package, DollarSign, MessageSquare, Star, Menu, X, FileText } from 'lucide-angular';
 import { DataService } from '../../services/data.service';
 
 @Component({
@@ -37,6 +37,7 @@ export class AdminDashboardComponent implements OnInit {
     { path: '/admin/pricing', label: 'Tarifs', icon: DollarSign },
     { path: '/admin/testimonials', label: 'Témoignages', icon: Star },
     { path: '/admin/messages', label: 'Messages', icon: MessageSquare },
+    { path: '/admin/blog', label: 'Blog', icon: FileText },
   ];
 
   constructor(

@@ -1,0 +1,165 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+      <lucide-icon [name]="fileIcon" class="w-6 h-6 text-cyan-400"></lucide-icon>
+      Gestion du Blog
+    </h1>
+    <button
+      class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+      (click)="openCreateModal()"
+    >
+      <lucide-icon [name]="addIcon" class="w-4 h-4"></lucide-icon>
+      Nouvel article
+    </button>
+  </div>
+
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (post of posts; track post.id) {
+      <article class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-800 overflow-hidden flex flex-col">
+        <div class="h-40 overflow-hidden">
+          <img [src]="post.image" [alt]="post.title" class="w-full h-full object-cover" />
+        </div>
+        <div class="p-5 flex-1 flex flex-col">
+          <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">{{ post.category }}</p>
+          <h2 class="text-xl font-semibold text-white mb-2 line-clamp-2">{{ post.title }}</h2>
+          <p class="text-sm text-slate-400 mb-3 line-clamp-3">
+            {{ post.excerpt }}
+          </p>
+          <div class="text-xs text-slate-500 mb-3">
+            Par {{ post.author }} · {{ post.date }}
+          </div>
+          <div class="flex flex-wrap gap-2 text-xs text-slate-400 mb-4">
+            @for (tag of post.tags; track tag) {
+              <span class="px-2 py-1 bg-slate-800 rounded-full border border-slate-700">
+                #{{ tag }}
+              </span>
+            }
+          </div>
+          <div class="mt-auto flex justify-end">
+            <button
+              class="px-4 py-2 rounded-lg border border-slate-700 text-slate-300 hover:border-cyan-400 hover:text-white transition-colors flex items-center gap-2"
+              (click)="openEditModal(post)"
+            >
+              <lucide-icon [name]="editIcon" class="w-4 h-4"></lucide-icon>
+              Modifier
+            </button>
+          </div>
+        </div>
+      </article>
+    }
+  </div>
+</div>
+
+@if (isCreateMode || editedPost) {
+  <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50" (click)="closeModal()">
+    <div class="w-full max-w-3xl bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl max-h-[90vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between p-6 border-b border-slate-800">
+        <div>
+          <p class="text-xs uppercase tracking-wide text-slate-400">
+            {{ isCreateMode ? 'Nouvel article' : 'Modifier l’article' }}
+          </p>
+          <h2 class="text-2xl font-semibold text-white">
+            {{ isCreateMode ? 'Nouvelle entrée' : editedPost?.title }}
+          </h2>
+        </div>
+        <button class="text-slate-400 hover:text-white" (click)="closeModal()">×</button>
+      </div>
+
+      <form class="p-6 space-y-5 overflow-y-auto" (ngSubmit)="savePost()">
+        <div class="grid gap-2">
+          <label class="text-sm font-semibold text-slate-300">Titre</label>
+          <input
+            [(ngModel)]="editForm.title"
+            name="title"
+            required
+            class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+          />
+        </div>
+
+        <div class="grid gap-2">
+          <label class="text-sm font-semibold text-slate-300">Extrait</label>
+          <textarea
+            [(ngModel)]="editForm.excerpt"
+            name="excerpt"
+            rows="2"
+            class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+          ></textarea>
+        </div>
+
+        <div class="grid gap-2">
+          <label class="text-sm font-semibold text-slate-300">Contenu</label>
+          <textarea
+            [(ngModel)]="editForm.content"
+            name="content"
+            rows="5"
+            class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+          ></textarea>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="grid gap-2">
+            <label class="text-sm font-semibold text-slate-300">Image (URL)</label>
+            <input
+              [(ngModel)]="editForm.image"
+              name="image"
+              type="url"
+              class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+              placeholder="https://..."
+            />
+          </div>
+          <div class="grid gap-2">
+            <label class="text-sm font-semibold text-slate-300">Auteur</label>
+            <input
+              [(ngModel)]="editForm.author"
+              name="author"
+              class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="grid gap-2">
+            <label class="text-sm font-semibold text-slate-300">Date</label>
+            <input
+              [(ngModel)]="editForm.date"
+              name="date"
+              type="date"
+              class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+            />
+          </div>
+          <div class="grid gap-2">
+            <label class="text-sm font-semibold text-slate-300">Catégorie</label>
+            <input
+              [(ngModel)]="editForm.category"
+              name="category"
+              class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div class="grid gap-2">
+          <label class="text-sm font-semibold text-slate-300">Tags (séparés par une virgule)</label>
+          <input
+            [(ngModel)]="editForm.tags"
+            name="tags"
+            class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+          />
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" class="px-4 py-2 rounded-xl border border-slate-600 text-slate-300" (click)="closeModal()">
+            Annuler
+          </button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold">
+            {{ isCreateMode ? 'Créer' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+
+
+
+

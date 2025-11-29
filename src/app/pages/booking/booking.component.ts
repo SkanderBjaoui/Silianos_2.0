@@ -5,6 +5,7 @@ import { LucideAngularModule, Calendar, Users, Mail, Phone, MapPin, Plane } from
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { DataService } from '../../services/data.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-booking',
@@ -46,12 +47,17 @@ export class BookingComponent {
   submitted = false;
   success = false;
 
-  constructor(private dataService: DataService) {}
+  constructor(
+    private dataService: DataService,
+    private authService: AuthService
+  ) {}
 
   onSubmit() {
     this.submitted = true;
     if (this.isFormValid()) {
+      const currentUser = this.authService.getCurrentUser();
       this.dataService.addBooking({
+        userId: currentUser?.id,
         customerName: this.bookingForm.customerName,
         email: this.bookingForm.email,
         phone: this.bookingForm.phone,
