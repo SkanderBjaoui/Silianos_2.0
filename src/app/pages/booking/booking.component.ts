@@ -1,32 +1,54 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Calendar, Users, Mail, Phone, MapPin, Plane } from 'lucide-angular';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { LucideAngularModule, Search, ChevronDown, X } from 'lucide-angular';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
-import { DataService } from '../../services/data.service';
-import { AuthService } from '../../services/auth.service';
+import { DataService, Service } from '../../services/data.service';
+import { AuthService, User as AuthUser } from '../../services/auth.service';
+import { CurrencyService } from '../../services/currency.service';
 
 @Component({
   selector: 'app-booking',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, NavbarComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule, NavbarComponent, FooterComponent],
   templateUrl: './booking.component.html',
   styleUrl: './booking.component.css'
 })
-export class BookingComponent {
-  calendarIcon = Calendar;
-  usersIcon = Users;
-  mailIcon = Mail;
-  phoneIcon = Phone;
-  mapPinIcon = MapPin;
-  planeIcon = Plane;
+export class BookingComponent implements OnInit, OnDestroy {
+  searchIcon = Search;
+  chevronDownIcon = ChevronDown;
+  xIcon = X;
 
-  bookingForm = {
+  currentUser: AuthUser | null = null;
+  private userSub?: Subscription;
+  private currencySub?: Subscription;
+
+  services: Service[] = [];
+  filteredServices: (Service & { displayPrice: number })[] = [];
+  loadingServices = false;
+  servicesError: string | null = null;
+
+  selectedCurrency = 'TND';
+
+  // Filters
+  searchTerm = '';
+  minPrice?: number;
+  maxPrice?: number;
+  selectedCountry: string = 'all';
+  availableCountries: string[] = [];
+
+  showReservationModal = false;
+  selectedService: Service | null = null;
+  reservationSuccess = false;
+  reservationLoading = false;
+
+  reservationForm = {
     customerName: '',
     email: '',
     phone: '',
-    serviceType: '',
     destination: '',
     departureDate: '',
     returnDate: '',
@@ -34,73 +56,124 @@ export class BookingComponent {
     notes: ''
   };
 
-  serviceTypes = [
-    'Omra & Hajj',
-    'Visa EAU',
-    'Visa Qatar',
-    'Visa Égypte',
-    'Visa Oman',
-    'Circuit Sud Tunisien',
-    'Voyage sur Mesure'
-  ];
-
-  submitted = false;
-  success = false;
-
   constructor(
     private dataService: DataService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private currencyService: CurrencyService
   ) {}
 
-  onSubmit() {
-    this.submitted = true;
-    if (this.isFormValid()) {
-      const currentUser = this.authService.getCurrentUser();
-      this.dataService.addBooking({
-        userId: currentUser?.id,
-        customerName: this.bookingForm.customerName,
-        email: this.bookingForm.email,
-        phone: this.bookingForm.phone,
-        serviceType: this.bookingForm.serviceType,
-        destination: this.bookingForm.destination || undefined,
-        departureDate: this.bookingForm.departureDate,
-        returnDate: this.bookingForm.returnDate || undefined,
-        numberOfTravelers: this.bookingForm.numberOfTravelers,
-        notes: this.bookingForm.notes || undefined
+  ngOnInit(): void {
+    this.userSub = this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+    });
+
+    // Sync displayed currency with global preference (user or guest)
+    this.selectedCurrency = this.authService.getEffectiveCurrency();
+    this.currencySub = this.authService.preferredCurrency$.subscribe(code => {
+      this.selectedCurrency = code;
+      this.applyFilters();
+    });
+
+    // Preload currency rates once
+    this.currencyService.loadRates().subscribe(() => {
+      this.loadServices();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.userSub?.unsubscribe();
+    this.currencySub?.unsubscribe();
+  }
+
+  loadServices() {
+    this.loadingServices = true;
+    this.servicesError = null;
+    this.dataService.getServices().subscribe({
+      next: (services) => {
+        this.services = services.filter(s => s.status === 'active');
+        this.availableCountries = Array.from(
+          new Set(this.services.map(s => s.country).filter((c): c is string => !!c))
+        ).sort();
+        this.applyFilters();
+        this.loadingServices = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des services :', error);
+        this.servicesError = 'Impossible de charger les services pour le moment.';
+        this.loadingServices = false;
+      }
+    });
+  }
+
+  applyFilters() {
+    const term = this.searchTerm.toLowerCase().trim();
+    const min = this.minPrice ?? 0;
+    const max = this.maxPrice ?? Number.MAX_SAFE_INTEGER;
+
+    this.filteredServices = this.services
+      .map(service => {
+        const displayPrice = this.currencyService.convert(
+          service.price,
+          service.currency,
+          this.selectedCurrency
+        );
+        return { ...service, displayPrice };
+      })
+      .filter(service => {
+        if (term) {
+          const haystack = `${service.title} ${service.description} ${(service.features || []).join(' ')}`.toLowerCase();
+          if (!haystack.includes(term)) {
+            return false;
+          }
+        }
+
+        if (this.selectedCountry !== 'all' && service.country !== this.selectedCountry) {
+          return false;
+        }
+
+        if (service.displayPrice < min || service.displayPrice > max) {
+          return false;
+        }
+
+        return true;
       });
-      
-      this.success = true;
-      this.resetForm();
-      
-      setTimeout(() => {
-        this.submitted = false;
-        this.success = false;
-      }, 5000);
+  }
+
+  openReservationModal(service: Service) {
+    if (!this.currentUser) {
+      this.router.navigate(['/login'], {
+        queryParams: {
+          redirectTo: `/services/${service.id}`,
+          reserve: 1,
+          currency: this.selectedCurrency
+        }
+      });
+      return;
     }
+
+    // Authenticated users are redirected to the service detail page with reserve flag
+    this.router.navigate(['/services', service.id], {
+      queryParams: {
+        reserve: 1,
+        currency: this.selectedCurrency
+      }
+    });
   }
 
-  isFormValid(): boolean {
-    return !!(
-      this.bookingForm.customerName &&
-      this.bookingForm.email &&
-      this.bookingForm.phone &&
-      this.bookingForm.serviceType &&
-      this.bookingForm.departureDate
-    );
+  closeReservationModal() {
+    this.showReservationModal = false;
+    this.selectedService = null;
+    this.reservationLoading = false;
   }
 
-  resetForm() {
-    this.bookingForm = {
-      customerName: '',
-      email: '',
-      phone: '',
-      serviceType: '',
-      destination: '',
-      departureDate: '',
-      returnDate: '',
-      numberOfTravelers: 1,
-      notes: ''
-    };
+  isReservationValid(): boolean {
+    return false;
+  }
+
+  submitReservation() {
+    return;
   }
 }
 

@@ -27,6 +27,7 @@ export class SignupComponent {
   password = '';
   confirmPassword = '';
   error = '';
+  phoneError = '';
   loading = false;
 
   constructor(
@@ -61,15 +62,52 @@ export class SignupComponent {
       return;
     }
 
-    this.authService.signup(this.email, this.password, this.name, this.phone || undefined).subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard']);
-      },
-      error: (err) => {
-        this.error = err.message || 'Une erreur est survenue';
-        this.loading = false;
-      }
-    });
+    // If phone provided, check whether it's already in use before attempting signup
+    const phoneToCheck = (this.phone || '').trim();
+    const proceedWithSignup = () => {
+      this.authService.signup(this.email, this.password, this.name, phoneToCheck || undefined).subscribe({
+        next: () => {
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          const msg = err?.message || err?.error || (err?.error && err.error.message) || 'Une erreur est survenue';
+          this.error = typeof msg === 'string' ? msg : 'Une erreur est survenue';
+
+          // If backend indicates the phone is already used, show inline phone error and scroll to top
+          const lowered = String(this.error).toLowerCase();
+          if (phoneToCheck && (lowered.includes('phone') || lowered.includes('téléphone') || lowered.includes('numéro') || lowered.includes('already') || lowered.includes('duplicate') || lowered.includes('existe'))) {
+            this.phoneError = 'Ce numéro de téléphone est déjà utilisé. Veuillez en choisir un autre.';
+          }
+
+          this.loading = false;
+          // Scroll to top so the user sees the error box
+          setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+        }
+      });
+    };
+
+    if (phoneToCheck) {
+      this.authService.checkPhoneExists(phoneToCheck).subscribe({
+          next: (exists) => {
+            if (exists) {
+              this.phoneError = 'Ce numéro de téléphone est déjà utilisé. Veuillez en choisir un autre.';
+              this.error = 'Veuillez corriger les erreurs ci-dessous.';
+              this.loading = false;
+              // Scroll to top so the user sees the error box
+              setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+              return;
+            }
+            proceedWithSignup();
+          },
+          error: () => {
+            // If the check fails for any reason, fallback to attempting signup and let backend validate
+            proceedWithSignup();
+          }
+        });
+    } else {
+      // No phone provided, proceed normally
+      proceedWithSignup();
+    }
   }
 }
 

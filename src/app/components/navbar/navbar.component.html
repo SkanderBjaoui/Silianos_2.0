@@ -9,10 +9,10 @@
         <img
           src="assets/@silianos_logo.png"
           alt="Silianos Voyage"
-          [class]="'h-12 w-12 md:h-16 md:w-16 object-contain rounded-full bg-white p-2 shadow-lg ring-2 ring-white/80 group-hover:scale-110 transition-all duration-300 flex-shrink-0 ' + (scrolled ? 'brightness-100' : 'brightness-100')"
+          [class]="'h-16 w-16 md:h-20 md:w-20 object-contain flex-shrink-0 transition-all duration-500 ease-out group-hover:scale-110 group-hover:rotate-6 group-hover:brightness-110 group-hover:drop-shadow-[0_0_15px_rgba(34,211,238,0.5)] ' + (scrolled ? 'brightness-100' : 'brightness-100')"
         />
-        <span [class]="'text-lg md:text-2xl font-premium font-bold transition-colors duration-500 whitespace-nowrap ' + (shouldShowStickyBackground() ? 'text-slate-100' : 'text-white')">
-          Silianos
+        <span [class]="'text-lg md:text-2xl font-premium font-bold whitespace-nowrap transition-all duration-500 ease-out group-hover:scale-110 group-hover:drop-shadow-[0_0_10px_rgba(34,211,238,0.3)] ' + (shouldShowStickyBackground() ? 'text-slate-100 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-cyan-400 group-hover:via-blue-400 group-hover:to-emerald-400 group-hover:bg-clip-text' : 'text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-cyan-400 group-hover:via-blue-400 group-hover:to-emerald-400 group-hover:bg-clip-text')">
+          Voyage
         </span>
       </a>
 
@@ -66,8 +66,26 @@
           }
         }
         
+        <!-- Currency Selector - Desktop -->
+        <div class="ml-4 currency-menu-trigger">
+          <div class="relative">
+            <button
+              type="button"
+              class="currency-menu-trigger-button
+                flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border border-slate-700 bg-slate-900/70 hover:bg-slate-800 transition-colors"
+              [class.text-slate-200]="shouldShowStickyBackground()"
+              [class.text-white]="!shouldShowStickyBackground()"
+              (click)="toggleCurrencyMenu($event)"
+            >
+              <span>{{ getSelectedCurrencyFlag() }}</span>
+              <span>{{ selectedCurrency }}</span>
+              <lucide-icon [name]="chevronDownIcon" class="w-4 h-4"></lucide-icon>
+            </button>
+          </div>
+        </div>
+
         <!-- Auth Buttons / User Menu - Right Side -->
-        <div class="ml-auto">
+        <div class="ml-2">
           @if (currentUser) {
             <div class="relative user-menu-container" style="z-index: 99999; position: relative;">
               <button
@@ -124,11 +142,11 @@
   </div>
 </nav>
 
-<!-- Dropdowns rendered outside nav to escape stacking context -->
+<!-- Dropdowns rendered outside nav to escape stacking context - Desktop only -->
 @for (item of navItems; track $index) {
   @if (isDropdown(item) && isDropdownOpen(item.label)) {
     <div 
-      class="fixed w-56 pt-2 z-[10000]"
+      class="hidden md:block fixed w-56 pt-2 z-[10000]"
       (mouseenter)="openDropdown(item.label)"
       (mouseleave)="closeDropdown(item.label)"
       [style.top.px]="getDropdownPosition(item.label)?.top"
@@ -155,7 +173,7 @@
 
 @if (currentUser && userMenuOpen) {
   <div 
-    class="fixed w-48 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-800 overflow-hidden animate-slide-down z-[10000] mt-2"
+    class="hidden md:block fixed w-48 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-800 overflow-hidden animate-slide-down z-[10000] mt-2"
     (mouseenter)="userMenuOpen = true"
     (mouseleave)="userMenuOpen = false"
     [style.top.px]="getUserMenuPosition()?.top"
@@ -176,6 +194,43 @@
       <lucide-icon [name]="logoutIcon" class="w-4 h-4"></lucide-icon>
       Déconnexion
     </button>
+  </div>
+}
+
+<!-- Desktop Currency Dropdown -->
+@if (currencyMenuOpen) {
+  <div
+    class="hidden md:block fixed w-56 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-800 overflow-hidden animate-slide-down z-[10000]"
+    [style.top.px]="getCurrencyMenuPosition()?.top"
+    [style.right.px]="getCurrencyMenuPosition()?.right"
+  >
+    <div class="px-4 py-3 border-b border-slate-800">
+      <p class="text-[11px] uppercase tracking-wide text-slate-500">Devise préférée</p>
+    </div>
+    <div class="py-2 max-h-64 overflow-y-auto">
+      @for (currency of currencyOptions; track currency.code) {
+        <button
+          type="button"
+          (click)="changeCurrency(currency)"
+          [disabled]="currencyUpdateLoading"
+          class="w-full flex items-center justify-between px-4 py-2 text-sm transition-colors"
+          [class.bg-slate-800]="isSelectedCurrency(currency)"
+          [class.text-cyan-300]="isSelectedCurrency(currency)"
+          [class.text-slate-300]="!isSelectedCurrency(currency)"
+        >
+          <span class="flex items-center gap-2">
+            <span class="text-lg leading-none">{{ currency.flag }}</span>
+            {{ currency.code }}
+          </span>
+          @if (isSelectedCurrency(currency)) {
+            <span class="text-[11px] uppercase tracking-wide text-emerald-300">sélectionnée</span>
+          }
+        </button>
+      }
+      @if (currencyUpdateLoading) {
+        <p class="px-4 pt-1 text-[11px] text-emerald-300">Mise à jour...</p>
+      }
+    </div>
   </div>
 }
 
@@ -203,9 +258,73 @@
       <div class="px-4 py-6 space-y-2">
         <!-- Auth Buttons / User Menu (Mobile) -->
         @if (currentUser) {
-          <div class="border-b border-slate-800 pb-4 mb-4">
+            <div class="border-b border-slate-800 pb-4 mb-4">
             <p class="text-slate-400 text-sm mb-2">Connecté en tant que</p>
             <p class="text-white font-semibold mb-3">{{ currentUser.name }}</p>
+              <div class="mb-4">
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-[11px] uppercase tracking-wide text-slate-500">Devise préférée</p>
+                <button (click)="toggleMobileCurrency($event)" class="px-2 py-1 rounded-md text-slate-300 hover:text-cyan-300">
+                  <!-- Semantics swapped: when mobileCurrencyOpen is TRUE we now show the compact grid (collapsed), when FALSE we show the expanded/search view. Adjust rotation accordingly. -->
+                  <lucide-icon [name]="chevronDownIcon" [class]="'w-4 h-4 transition-transform duration-200 ' + (mobileCurrencyOpen ? 'rotate-180' : '')"></lucide-icon>
+                </button>
+              </div>
+              @if (mobileCurrencyOpen) {
+                <!-- COMPACT GRID VIEW (now the 'collapsed' state) -->
+                <div class="grid grid-cols-2 gap-2">
+                  @for (currency of currencyOptions; track currency.code) {
+                    <button
+                      type="button"
+                      (click)="changeCurrency(currency)"
+                      [disabled]="currencyUpdateLoading"
+                      class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm border border-slate-800"
+                      [class.bg-slate-800]="isSelectedCurrency(currency)"
+                      [class.text-cyan-300]="isSelectedCurrency(currency)"
+                      [class.text-slate-300]="!isSelectedCurrency(currency)"
+                    >
+                      <span>{{ currency.flag }}</span>
+                      <span>{{ currency.code }}</span>
+                    </button>
+                  }
+                </div>
+              } @else {
+                <!-- EXPANDED/SEARCH VIEW (now shown when mobileCurrencyOpen is FALSE) -->
+                <div class="mb-2">
+                  <input
+                    type="text"
+                    [(ngModel)]="mobileCurrencySearch"
+                    class="mobile-currency-search w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white placeholder-slate-500 focus:outline-none"
+                    placeholder="Rechercher une devise..."
+                    (click)="$event.stopPropagation()"
+                  />
+                </div>
+                <div class="max-h-48 overflow-y-auto space-y-2">
+                  @for (currency of filteredMobileCurrencies; track currency.code) {
+                    <button
+                      type="button"
+                      (click)="changeCurrency(currency)"
+                      [disabled]="currencyUpdateLoading"
+                      class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors"
+                      [class.bg-slate-800]="isSelectedCurrency(currency)"
+                      [class.text-cyan-300]="isSelectedCurrency(currency)"
+                      [class.text-slate-300]="!isSelectedCurrency(currency)"
+                    >
+                      <span class="flex items-center gap-2">
+                        <span class="text-lg leading-none">{{ currency.flag }}</span>
+                        <span>{{ currency.code }}</span>
+                      </span>
+                      @if (isSelectedCurrency(currency)) {
+                        <span class="text-[11px] uppercase tracking-wide text-emerald-300">sélectionnée</span>
+                      }
+                    </button>
+                  }
+                </div>
+              }
+
+              @if (currencyUpdateLoading) {
+                <p class="text-[11px] text-emerald-300 mt-2">Mise à jour...</p>
+              }
+            </div>
             
             <!-- Dashboard Menu with Dropdown -->
             <div>
@@ -306,7 +425,7 @@
             </button>
           </div>
         } @else {
-          <div class="border-b border-slate-800 pb-4 mb-4 space-y-2">
+            <div class="border-b border-slate-800 pb-4 mb-4 space-y-2">
             <a
               routerLink="/login"
               (click)="isOpen = false"

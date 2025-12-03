@@ -7,7 +7,17 @@
   </div>
 
   <div class="grid gap-6">
-    @for (testimonial of testimonials; track testimonial.id) {
+    <div class="mb-4">
+      <div class="flex gap-3 items-center">
+        <input [(ngModel)]="filterQuery" name="testiFilter" type="text" placeholder="Rechercher par nom, commentaire ou service..." class="flex-1 rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none" />
+        <select [(ngModel)]="verifiedFilter" name="verifiedFilter" class="rounded-xl bg-slate-800 border border-slate-700 text-white px-3 py-2 focus:border-emerald-400 focus:outline-none">
+          <option value="all">Tous</option>
+          <option value="verified">Vérifié</option>
+          <option value="unverified">Non vérifié</option>
+        </select>
+      </div>
+    </div>
+    @for (testimonial of filteredTestimonials; track testimonial.id) {
       <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 border border-slate-800">
         <div class="flex items-start justify-between gap-4">
           <div class="flex-1">

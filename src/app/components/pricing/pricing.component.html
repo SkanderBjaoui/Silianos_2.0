@@ -5,16 +5,30 @@
 
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
     <div class="text-center mb-16">
-      <h2 class="text-5xl md:text-6xl font-premium font-bold text-white mb-4">
-        Nos Tarifs
+      <h2 class="text-5xl md:text-6xl font-premium font-bold text-white mb-4" appTypewriter="Nos Tarifs" [typewriterSpeed]="60">
       </h2>
       <p class="text-xl text-slate-300 max-w-3xl mx-auto">
         Des prix transparents et compétitifs pour tous vos projets de voyage
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      @for (pkg of packages; track pkg.title; let index = $index) {
+    @if (loading) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        @for (skeleton of [1,2,3]; track skeleton) {
+          <div class="bg-slate-900 border border-slate-800 rounded-3xl h-96 animate-pulse"></div>
+        }
+      </div>
+    } @else if (error) {
+      <div class="text-center text-slate-300 border border-slate-800 rounded-3xl py-12">
+        {{ error }}
+      </div>
+    } @else if (packages.length === 0) {
+      <div class="text-center text-slate-300 border border-dashed border-slate-700 rounded-3xl py-12">
+        Aucun tarif n'a encore été ajouté. Revenez bientôt !
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      @for (pkg of packages; track pkg.id; let index = $index) {
         <div
           class="premium-card group relative bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl transition-transform duration-300 will-change-transform transform hover:scale-105"
           [style.animation-delay]="(index * 100) + 'ms'"
@@ -50,11 +64,15 @@
               </div>
 
               <div class="my-6 py-6 border-t border-b border-slate-800">
-                <div class="flex items-baseline justify-center">
-                  <span class="text-5xl font-bold text-white">{{ pkg.price }}</span>
-                  <span class="ml-2 text-2xl text-slate-300">{{ pkg.currency }}</span>
+                <div class="flex items-baseline justify-center gap-2">
+                  <span class="text-4xl font-bold text-white">{{ pkg.price | number:'1.0-0' }}</span>
+                  <span class="text-2xl text-slate-300">{{ pkg.currency }}</span>
                 </div>
-                @if (pkg.period) {
+                @if (pkg.startDate && pkg.endDate) {
+                  <div class="text-sm text-slate-400 text-center mt-2">
+                    Du {{ pkg.startDate | date:'dd MMM yyyy' }} au {{ pkg.endDate | date:'dd MMM yyyy' }}
+                  </div>
+                } @else if (pkg.period) {
                   <div class="text-sm text-slate-400 text-center mt-2">{{ pkg.period }}</div>
                 }
               </div>
@@ -81,7 +99,8 @@
 
               <div class="flex justify-center">
                 <a
-                  href="#pricing"
+                  routerLink="/booking"
+                  [queryParams]="{ currency: pkg.currency, package: pkg.id }"
                   class="glow-button inline-block text-center"
                 >
                   Réserver
@@ -91,7 +110,8 @@
           </div>
         </div>
       }
-    </div>
+      </div>
+    }
 
     <div class="mt-20 text-center">
       <p class="text-slate-300 mb-6 text-lg">Des questions sur nos tarifs ?</p>

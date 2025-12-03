@@ -13,8 +13,17 @@
     </button>
   </div>
 
-  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-    @for (post of posts; track post.id) {
+  @if (posts.length === 0) {
+    <div class="text-center py-12 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-800">
+      <p class="text-slate-400 text-lg mb-2">Aucun article ajouté</p>
+      <p class="text-slate-500 text-sm">Veuillez ajouter un article pour commencer</p>
+    </div>
+  } @else {
+    <div class="mb-4">
+      <input [(ngModel)]="filterQuery" name="postFilter" type="text" placeholder="Rechercher par titre, auteur ou extrait..." class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none" />
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (post of filteredPosts; track post.id) {
       <article class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-800 overflow-hidden flex flex-col">
         <div class="h-40 overflow-hidden">
           <img [src]="post.image" [alt]="post.title" class="w-full h-full object-cover" />
@@ -43,11 +52,19 @@
               <lucide-icon [name]="editIcon" class="w-4 h-4"></lucide-icon>
               Modifier
             </button>
+            <button
+              class="ml-2 px-4 py-2 rounded-lg border border-slate-700 text-rose-300 hover:border-rose-400 hover:text-white transition-colors flex items-center gap-2"
+              (click)="deletePost(post.id)"
+            >
+              <lucide-icon [name]="trash2" class="w-4 h-4"></lucide-icon>
+              Supprimer
+            </button>
           </div>
         </div>
       </article>
-    }
-  </div>
+      }
+    </div>
+  }
 </div>
 
 @if (isCreateMode || editedPost) {
@@ -62,7 +79,7 @@
             {{ isCreateMode ? 'Nouvelle entrée' : editedPost?.title }}
           </h2>
         </div>
-        <button class="text-slate-400 hover:text-white" (click)="closeModal()">×</button>
+        <button class="text-slate-400 hover:text-white text-2xl leading-none" (click)="closeModal()">×</button>
       </div>
 
       <form class="p-6 space-y-5 overflow-y-auto" (ngSubmit)="savePost()">

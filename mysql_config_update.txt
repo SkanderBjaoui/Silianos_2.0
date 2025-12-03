@@ -1,0 +1,48 @@
+# ============================================
+# MYSQL CONFIGURATION UPDATE FOR REMOTE ACCESS
+# ============================================
+# 
+# Add these lines to your my.ini file in the [mysqld] section
+# Location: C:\ProgramData\MySQL\MySQL Server 9.5\my.ini
+#
+# ============================================
+
+# Find the [mysqld] section in your my.ini file
+# Add these lines AFTER the "port=3306" line:
+
+# Allow remote connections (change from default 127.0.0.1)
+bind-address = 0.0.0.0
+
+# Optional: If you want to specify which IPs can connect (more secure)
+# bind-address = your-server-ip-address
+
+# ============================================
+# INSTRUCTIONS:
+# ============================================
+# 1. Open my.ini file as Administrator:
+#    - Right-click on Notepad → Run as Administrator
+#    - Open: C:\ProgramData\MySQL\MySQL Server 9.5\my.ini
+#
+# 2. Find the [mysqld] section (around line 50-60)
+#
+# 3. Look for the line: port=3306
+#
+# 4. Add this line RIGHT AFTER port=3306:
+#    bind-address = 0.0.0.0
+#
+# 5. Save the file
+#
+# 6. Restart MySQL service:
+#    - Press Win+R, type: services.msc
+#    - Find "MySQL" or "MySQL80" or "MySQL95"
+#    - Right-click → Restart
+#
+# 7. Configure Windows Firewall (see below)
+#
+# ============================================
+
+
+
+
+
+

@@ -1,14 +1,35 @@
 <div class="space-y-6">
   <div class="flex items-center justify-between">
     <h1 class="text-3xl font-bold text-white">Gestion des Services</h1>
-    <button class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all">
+    <button 
+      class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+      (click)="openCreateModal()"
+    >
       + Ajouter un service
     </button>
   </div>
 
-  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-    @for (service of services; track service.id) {
-      <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 border border-slate-800">
+  @if (loading) {
+    <div class="text-center py-12">
+      <p class="text-slate-400">Chargement des services...</p>
+    </div>
+  } @else if (services.length === 0) {
+    <div class="text-center py-12 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-800">
+      <p class="text-slate-400 text-lg mb-2">Aucun service ajouté</p>
+      <p class="text-slate-500 text-sm">Veuillez ajouter un service pour commencer</p>
+    </div>
+  } @else {
+    <div class="mb-4 flex items-center gap-3">
+        <input [(ngModel)]="filterQuery" name="serviceFilter" type="text" placeholder="Rechercher par titre ou pays..." class="rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none flex-1" />
+        <select [(ngModel)]="statusFilter" name="serviceStatusFilter" class="rounded-xl bg-slate-800 border border-slate-700 text-white px-3 py-2 focus:border-emerald-400 focus:outline-none text-sm">
+          <option value="">Tous</option>
+          <option value="active">Actif</option>
+          <option value="inactive">Inactif</option>
+        </select>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (service of filteredServices; track service.id) {
+      <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 border border-slate-800 relative">
         <h3 class="text-xl font-bold text-white mb-2">{{ service.title }}</h3>
         <p class="text-sm text-slate-400 mb-2">
           {{ service.description }}
@@ -16,7 +37,19 @@
         <p class="text-xs text-slate-500 mb-3 line-clamp-2">
           {{ service.about }}
         </p>
-        <div class="w-full h-32 rounded-xl overflow-hidden border border-slate-800/60 mb-4">
+        <div class="flex items-center justify-between text-sm text-slate-300 mb-3">
+          <div class="font-semibold">
+            {{ service.price | number:'1.0-0' }} {{ service.currency }}
+          </div>
+          <div class="text-xs text-slate-400">
+            @if (service.durationDays) {
+              <span>Durée max: {{ service.durationDays }} jours</span>
+            } @else {
+              <span>Durée flexible</span>
+            }
+          </div>
+        </div>
+        <div class="w-full h-32 rounded-xl overflow-hidden border border-slate-800/60 mb-4 relative">
           <img [src]="service.image" [alt]="service.title" class="w-full h-full object-cover" />
         </div>
         <div class="flex items-center justify-between">
@@ -30,22 +63,33 @@
             >
               Modifier
             </button>
+            <button
+              class="p-2 rounded-lg hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-colors"
+              (click)="deleteService(service.id)"
+            >
+              <lucide-icon [name]="trashIcon" class="w-4 h-4"></lucide-icon>
+            </button>
           </div>
         </div>
       </div>
-    }
-  </div>
+      }
+    </div>
+  }
 </div>
 
-@if (editedService) {
+@if (isCreateMode || editedService) {
   <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50" (click)="closeModal()">
-    <div class="w-full max-w-lg bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl max-h-[90vh] flex flex-col" (click)="$event.stopPropagation()">
+    <div class="w-full max-w-4xl bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl max-h-[90vh] flex flex-col" (click)="$event.stopPropagation()">
       <div class="flex items-center justify-between p-6 border-b border-slate-800">
         <div>
-          <p class="text-xs uppercase tracking-wide text-slate-400">Modifier le service</p>
-          <h2 class="text-2xl font-semibold text-white">{{ editedService.title }}</h2>
+          <p class="text-xs uppercase tracking-wide text-slate-400">
+            {{ isCreateMode ? 'Nouveau service' : 'Modifier le service' }}
+          </p>
+          <h2 class="text-2xl font-semibold text-white">
+            {{ isCreateMode ? 'Ajouter un service' : editedService?.title }}
+          </h2>
         </div>
-        <button class="text-slate-400 hover:text-white" (click)="closeModal()">×</button>
+        <button class="text-slate-400 hover:text-white text-2xl leading-none" (click)="closeModal()">×</button>
       </div>
 
       <form class="p-6 space-y-5 overflow-y-auto" (ngSubmit)="saveService()">
@@ -69,6 +113,87 @@
           ></textarea>
         </div>
 
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-300 mb-2">Prix</label>
+            <input
+              [(ngModel)]="editForm.price"
+              name="price"
+              type="number"
+              step="0.01"
+              min="0"
+              required
+              class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-300 mb-2">Devise</label>
+            <select
+              [(ngModel)]="editForm.currency"
+              name="currency"
+              class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+            >
+              @for (currency of availableCurrencies; track currency.code) {
+                <option [value]="currency.code">{{ currency.flag }} {{ currency.code }} - {{ currency.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-slate-300 mb-2">Pays (optionnel)</label>
+          <div class="space-y-2">
+            <input
+              [(ngModel)]="countrySearch"
+              name="countrySearch"
+              type="text"
+              class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 text-sm focus:border-emerald-400 focus:outline-none"
+              placeholder="Rechercher un pays..."
+            />
+            <div class="max-h-40 overflow-y-auto rounded-xl border border-slate-800 bg-slate-900/80">
+              <button
+                type="button"
+                class="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-slate-800"
+                (click)="editForm.country = ''"
+              >
+                Aucun pays (optionnel)
+              </button>
+              @for (country of filteredAdminCountries; track country) {
+                <button
+                  type="button"
+                  class="w-full text-left px-4 py-2 text-sm hover:bg-slate-800"
+                  [class.text-emerald-300]="editForm.country === country"
+                  (click)="editForm.country = country"
+                >
+                  {{ country }}
+                </button>
+              }
+            </div>
+            <p class="mt-1 text-[11px] text-slate-500">
+              Choisissez un pays dans la liste ou laissez vide si le service n'est pas lié à un pays spécifique.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-300 mb-2">
+              Durée maximale (en jours)
+            </label>
+            <input
+              [(ngModel)]="editForm.durationDays"
+              name="durationDays"
+              type="number"
+              min="1"
+              class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+              placeholder="Ex: 10"
+            />
+            <p class="mt-1 text-[11px] text-slate-500">
+              L'utilisateur choisira la date de départ, la date de retour sera limitée à cette durée.
+            </p>
+          </div>
+        </div>
+
         <div>
           <label class="block text-sm font-semibold text-slate-300 mb-2">Image (URL)</label>
           <input
@@ -79,6 +204,8 @@
             placeholder="https://..."
           />
         </div>
+
+        <!-- Icône et couleur supprimées -->
 
         <div>
           <label class="block text-sm font-semibold text-slate-300 mb-2">À propos du service</label>
@@ -131,7 +258,7 @@
             Annuler
           </button>
           <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold">
-            Enregistrer
+            {{ isCreateMode ? 'Créer' : 'Enregistrer' }}
           </button>
         </div>
       </form>

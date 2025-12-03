@@ -1,9 +1,9 @@
 <div class="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
   <app-navbar></app-navbar>
 
-  <div class="pt-20 flex">
+  <div class="pt-20 flex items-start">
     <!-- Sidebar Navigation -->
-    <aside class="w-64 min-h-[calc(100vh-5rem)] bg-slate-900/50 border-r border-slate-800 sticky top-20">
+    <aside class="w-64 bg-slate-900/50 border-r border-slate-800 lg:sticky lg:top-20 lg:self-start lg:h-[calc(100vh-5rem)] lg:overflow-y-auto">
       <div class="p-6">
         <!-- User Profile Summary -->
         <div class="mb-6 pb-6 border-b border-slate-800">
@@ -22,18 +22,18 @@
         <nav class="space-y-2">
           <button
             (click)="activeSection = 'overview'"
-            [class]="'w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ' + (activeSection === 'overview' ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white')"
+            [class]="'w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all ' + (activeSection === 'overview' ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white')"
           >
             <lucide-icon [name]="layoutIcon" class="w-5 h-5"></lucide-icon>
-            <span class="font-medium">Vue d'ensemble</span>
+            <span class="flex-1 text-left">Vue d'ensemble</span>
           </button>
 
           <button
             (click)="activeSection = 'reservations'"
-            [class]="'w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ' + (activeSection === 'reservations' ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white')"
+            [class]="'w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all ' + (activeSection === 'reservations' ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white')"
           >
             <lucide-icon [name]="calendarIcon" class="w-5 h-5"></lucide-icon>
-            <span class="font-medium">Mes Réservations</span>
+            <span class="flex-1 text-left">Mes Réservations</span>
             @if (bookings.length > 0) {
               <span class="ml-auto px-2 py-0.5 bg-cyan-500/20 text-cyan-400 rounded-full text-xs font-semibold">
                 {{ bookings.length }}
@@ -41,44 +41,38 @@
             }
           </button>
 
-          <button
-            (click)="activeSection = 'payments'"
-            [class]="'w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ' + (activeSection === 'payments' ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white')"
-          >
-            <lucide-icon [name]="creditCardIcon" class="w-5 h-5"></lucide-icon>
-            <span class="font-medium">Paiements</span>
-          </button>
+          <!-- Payments removed per request -->
 
           <button
             (click)="activeSection = 'profile'"
-            [class]="'w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ' + (activeSection === 'profile' ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white')"
+            [class]="'w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all ' + (activeSection === 'profile' ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white')"
           >
             <lucide-icon [name]="userIcon" class="w-5 h-5"></lucide-icon>
-            <span class="font-medium">Mon Profil</span>
+            <span class="flex-1 text-left">Mon Profil</span>
           </button>
 
           <button
-            (click)="activeSection = 'favorites'"
-            [class]="'w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ' + (activeSection === 'favorites' ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white')"
+            (click)="activeSection = 'addTestimonial'"
+            [class]="'w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all ' + (activeSection === 'addTestimonial' ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white')"
           >
             <lucide-icon [name]="heartIcon" class="w-5 h-5"></lucide-icon>
-            <span class="font-medium">Favoris</span>
+            <span class="flex-1 text-left">Ajouter un témoignage</span>
           </button>
 
           <button
-            (click)="activeSection = 'notifications'"
-            [class]="'w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ' + (activeSection === 'notifications' ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white')"
+            (click)="openNotifications()"
+            [class]="'w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all ' + (activeSection === 'notifications' ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white')"
           >
             <lucide-icon [name]="bellIcon" class="w-5 h-5"></lucide-icon>
-            <span class="font-medium">Notifications</span>
+            <span class="flex-1 text-left">Notifications</span>
           </button>
 
           <button
             (click)="activeSection = 'support'"
-            [class]="'w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ' + (activeSection === 'support' ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white')"
+            [class]="'w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl transition-all ' + (activeSection === 'support' ? 'bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white')"
           >
             <lucide-icon [name]="helpCircleIcon" class="w-5 h-5"></lucide-icon>
-            <span class="font-medium">Support</span>
+            <span class="flex-1 text-left">Support</span>
           </button>
         </nav>
 
@@ -86,10 +80,10 @@
         <div class="mt-8 pt-6 border-t border-slate-800">
           <button
             (click)="logout()"
-            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 border border-transparent transition-all"
+            class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 border border-transparent transition-all"
           >
             <lucide-icon [name]="logoutIcon" class="w-5 h-5"></lucide-icon>
-            <span class="font-medium">Déconnexion</span>
+            <span class="flex-1 text-left">Déconnexion</span>
           </button>
         </div>
       </div>
@@ -115,23 +109,22 @@
               <p class="text-3xl font-bold text-white">{{ bookings.length }}</p>
               <p class="text-slate-400 text-sm mt-2">Total des réservations</p>
             </div>
-
             <div class="rounded-2xl border border-slate-800 p-6 bg-slate-900/50">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-slate-400 text-sm font-medium">Moyens de paiement</h3>
-                <lucide-icon [name]="creditCardIcon" class="w-5 h-5 text-emerald-400"></lucide-icon>
+                <h3 class="text-slate-400 text-sm font-medium">Notifications</h3>
+                <lucide-icon [name]="bellIcon" class="w-5 h-5 text-cyan-400"></lucide-icon>
               </div>
-              <p class="text-3xl font-bold text-white">{{ paymentMethods.length }}</p>
-              <p class="text-slate-400 text-sm mt-2">Enregistrés</p>
+              <p class="text-3xl font-bold text-white">{{ unreadNotificationsCount }}</p>
+              <p class="text-slate-400 text-sm mt-2">Nouvelles notifications non lues</p>
             </div>
 
             <div class="rounded-2xl border border-slate-800 p-6 bg-slate-900/50">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="text-slate-400 text-sm font-medium">Favoris</h3>
+                <h3 class="text-slate-400 text-sm font-medium">Témoignages</h3>
                 <lucide-icon [name]="heartIcon" class="w-5 h-5 text-rose-400"></lucide-icon>
               </div>
-              <p class="text-3xl font-bold text-white">{{ favorites.length }}</p>
-              <p class="text-slate-400 text-sm mt-2">Destinations sauvegardées</p>
+              <p class="text-3xl font-bold text-white">{{ testimonialsCount }}</p>
+              <p class="text-slate-400 text-sm mt-2">Témoignages publiés</p>
             </div>
           </div>
 
@@ -146,7 +139,7 @@
                 </a>
               </div>
             } @else {
-              <div class="space-y-3">
+              <div class="space-y-3 max-h-96 overflow-y-auto">
                 @for (booking of bookings.slice(0, 3); track booking.id) {
                   <div class="flex items-center justify-between p-4 rounded-xl border border-slate-700 hover:border-slate-600 transition-colors">
                     <div>
@@ -215,7 +208,10 @@
                       @if (booking.totalAmount) {
                         <div>
                           <p class="text-slate-400">Montant total</p>
-                          <p class="text-white font-semibold">{{ booking.totalAmount }}€</p>
+                          <p class="text-white font-semibold">
+                            {{ booking.totalAmount }}
+                            <span class="text-sm text-slate-400">{{ booking.currency || 'TND' }}</span>
+                          </p>
                         </div>
                       }
                     </div>
@@ -262,60 +258,7 @@
             </button>
           </div>
 
-          <div class="rounded-2xl border border-slate-800 p-6 bg-slate-900/50">
-            @if (paymentMethods.length === 0) {
-              <div class="text-center py-12 text-slate-400">
-                <lucide-icon [name]="creditCardIcon" class="w-16 h-16 mx-auto mb-4 text-slate-600"></lucide-icon>
-                <p class="text-lg mb-4">Aucun moyen de paiement</p>
-                <button
-                  (click)="openAddPaymentModal()"
-                  class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
-                >
-                  Ajouter un moyen de paiement
-                </button>
-              </div>
-            } @else {
-              <div class="space-y-3">
-                @for (method of paymentMethods; track method.id) {
-                  <div class="rounded-xl p-4 border border-slate-700 bg-slate-800/30">
-                    <div class="flex items-start justify-between mb-2">
-                      <div class="flex-1">
-                        @if (method.type === 'card') {
-                          <p class="text-white font-semibold">{{ maskCardNumber(method.cardNumber) }}</p>
-                          <p class="text-slate-400 text-sm">{{ method.cardHolder }}</p>
-                          <p class="text-slate-400 text-xs">{{ method.expiryDate }}</p>
-                        } @else {
-                          <p class="text-white font-semibold">{{ method.bankName }}</p>
-                          <p class="text-slate-400 text-sm">{{ method.accountNumber }}</p>
-                        }
-                      </div>
-                      @if (method.isDefault) {
-                        <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-semibold border border-emerald-500/30">
-                          Par défaut
-                        </span>
-                      }
-                    </div>
-                    <div class="flex gap-2 mt-3">
-                      @if (!method.isDefault) {
-                        <button
-                          (click)="setDefaultPaymentMethod(method.id)"
-                          class="flex-1 px-3 py-1.5 text-xs rounded-lg border border-slate-600 text-slate-300 hover:border-cyan-400 hover:text-cyan-400 transition-colors"
-                        >
-                          Définir par défaut
-                        </button>
-                      }
-                      <button
-                        (click)="removePaymentMethod(method.id)"
-                        class="px-3 py-1.5 text-xs rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/20 transition-colors"
-                      >
-                        Supprimer
-                      </button>
-                    </div>
-                  </div>
-                }
-              </div>
-            }
-          </div>
+            <!-- Payments section removed per request -->
         </div>
       }
 
@@ -393,41 +336,73 @@
         </div>
       }
 
-      <!-- Favorites Section -->
-      @if (activeSection === 'favorites') {
+      <!-- Add Testimonial Section -->
+      @if (activeSection === 'addTestimonial') {
         <div class="space-y-6">
           <div>
-            <h1 class="text-3xl font-bold text-white mb-2">Mes Favoris</h1>
-            <p class="text-slate-400">Vos destinations et services sauvegardés</p>
+            <h1 class="text-3xl font-bold text-white mb-2">Ajouter un témoignage</h1>
+            <p class="text-slate-400">Partagez votre expérience avec une note et un commentaire</p>
           </div>
 
-          <div class="rounded-2xl border border-slate-800 p-6 bg-slate-900/50">
-            @if (favorites.length === 0) {
-              <div class="text-center py-12 text-slate-400">
-                <lucide-icon [name]="heartIcon" class="w-16 h-16 mx-auto mb-4 text-slate-600"></lucide-icon>
-                <p class="text-lg mb-2">Aucun favori pour le moment</p>
-                <p class="text-sm">Explorez nos services et ajoutez vos favoris</p>
+          <div class="rounded-2xl border border-slate-800 p-6 bg-slate-900/50 max-w-2xl">
+            <form (ngSubmit)="submitTestimonial()" class="space-y-4">
+              <div>
+                <label class="block text-sm font-semibold text-slate-300 mb-2">Note (1 à 5 étoiles)</label>
+                <div class="flex items-center gap-2">
+                  <label *ngFor="let r of [1,2,3,4,5]">
+                    <input type="radio" name="rating" [(ngModel)]="testimonialForm.rating" [value]="r" class="hidden" />
+                    <span class="cursor-pointer text-2xl" [class.text-amber-400]="testimonialForm.rating >= r">★</span>
+                  </label>
+                </div>
               </div>
-            } @else {
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                @for (favorite of favorites; track favorite.id) {
-                  <div class="rounded-xl p-4 border border-slate-700 bg-slate-800/30 hover:border-slate-600 transition-colors">
-                    <h3 class="text-white font-semibold mb-2">{{ favorite.title }}</h3>
-                    <p class="text-slate-400 text-sm mb-4">{{ favorite.description }}</p>
-                    <button
-                      (click)="removeFavorite(favorite.id)"
-                      class="text-red-400 hover:text-red-300 text-sm flex items-center gap-1"
-                    >
-                      <lucide-icon [name]="xIcon" class="w-4 h-4"></lucide-icon>
-                      Retirer des favoris
-                    </button>
-                  </div>
-                }
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-300 mb-2">Commentaire</label>
+                <textarea
+                  rows="5"
+                  [(ngModel)]="testimonialForm.comment"
+                  name="comment"
+                  class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-3 focus:border-cyan-400 focus:outline-none"
+                  placeholder="Racontez votre expérience..."
+                ></textarea>
+              </div>
+
+              <div class="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  (click)="testimonialForm = { rating: 5, comment: '' }"
+                  class="flex-1 px-4 py-3 rounded-xl border border-slate-600 text-slate-300 hover:border-slate-500 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  class="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold hover:shadow-lg transition-all"
+                >
+                  Envoyer le témoignage
+                </button>
+              </div>
+            </form>
+            
+            <!-- Pending message shown after submit -->
+            @if (testimonialPending) {
+              <div class="mt-4 px-4 py-3 rounded-lg bg-yellow-900/60 text-yellow-200 border border-yellow-800 text-sm">
+                Votre témoignage a bien été envoyé. En attente de validation par l\'administrateur.
               </div>
             }
           </div>
         </div>
       }
+
+      <!-- Toast container -->
+      <div class="fixed right-4 bottom-6 z-50 space-y-3">
+        @for (toast of toasts; track toast.id) {
+          <div [class]="'px-4 py-3 rounded-lg shadow-lg max-w-sm text-sm flex items-center gap-3 ' + (toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white')">
+            <div class="flex-1">{{ toast.message }}</div>
+            <button (click)="dismissToast(toast.id)" class="text-white/80">✕</button>
+          </div>
+        }
+      </div>
 
       <!-- Notifications Section -->
       @if (activeSection === 'notifications') {
@@ -545,7 +520,10 @@
         </div>
         <div>
           <p class="text-slate-400 text-sm">Montant total</p>
-          <p class="text-2xl font-bold text-white">{{ selectedBooking.totalAmount }}€</p>
+          <p class="text-2xl font-bold text-white">
+            {{ selectedBooking.totalAmount }}
+            <span class="text-base text-slate-400">{{ selectedBooking.currency || 'TND' }}</span>
+          </p>
         </div>
         <div>
           <p class="text-slate-400 text-sm mb-2">Moyen de paiement</p>

@@ -34,12 +34,22 @@
                   <input
                     type="text"
                     [(ngModel)]="signupName"
+                    (blur)="validateName()"
+                    (input)="validateName()"
                     name="signupName"
                     required
-                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
+                    maxlength="50"
+                    class="w-full pl-14 pr-4 py-3 rounded-xl bg-slate-800 border text-white placeholder-slate-500 focus:outline-none transition-colors"
+                    [class.border-slate-700]="!nameError"
+                    [class.border-red-500]="nameError"
+                    [class.focus:border-cyan-400]="!nameError"
+                    [class.focus:border-red-500]="nameError"
                     placeholder="Votre nom"
                   />
                 </div>
+                @if (nameError) {
+                  <p class="mt-1 text-sm text-red-400">{{ nameError }}</p>
+                }
               </div>
 
               <div>
@@ -51,28 +61,52 @@
                   <input
                     type="email"
                     [(ngModel)]="signupEmail"
+                    (blur)="validateEmail()"
+                    (input)="validateEmail()"
                     name="signupEmail"
                     required
-                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
+                    class="w-full pl-14 pr-4 py-3 rounded-xl bg-slate-800 border text-white placeholder-slate-500 focus:outline-none transition-colors"
+                    [class.border-slate-700]="!emailError"
+                    [class.border-red-500]="emailError"
+                    [class.focus:border-cyan-400]="!emailError"
+                    [class.focus:border-red-500]="emailError"
                     placeholder="votre@email.com"
                   />
                 </div>
+                @if (emailError) {
+                  <p class="mt-1 text-sm text-red-400">{{ emailError }}</p>
+                }
               </div>
 
               <div>
                 <label class="block text-sm font-semibold text-slate-300 mb-2">
                   Téléphone
                 </label>
-                <div class="relative">
-                  <lucide-icon [name]="phoneIcon" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></lucide-icon>
-                  <input
-                    type="tel"
-                    [(ngModel)]="signupPhone"
-                    name="signupPhone"
-                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
-                    placeholder="+216 XX XXX XXX"
-                  />
+                <div class="flex gap-0">
+                  <app-country-selector
+                    [selectedCountry]="selectedCountry"
+                    (countrySelected)="onCountrySelected($event)"
+                  ></app-country-selector>
+                  <div class="relative flex-1">
+                    <lucide-icon [name]="phoneIcon" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></lucide-icon>
+                    <input
+                      type="tel"
+                      [(ngModel)]="signupPhoneNumber"
+                      (blur)="validatePhone()"
+                      (input)="validatePhone()"
+                      name="signupPhoneNumber"
+                      class="w-full pl-14 pr-4 py-3 rounded-r-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none transition-colors"
+                      [class.border-slate-700]="!phoneError"
+                      [class.border-red-500]="phoneError"
+                      [class.focus:border-cyan-400]="!phoneError"
+                      [class.focus:border-red-500]="phoneError"
+                      placeholder="XX XXX XXX"
+                    />
+                  </div>
                 </div>
+                @if (phoneError) {
+                  <p class="mt-1 text-sm text-red-400">{{ phoneError }}</p>
+                }
               </div>
 
               <div>
@@ -82,14 +116,32 @@
                 <div class="relative">
                   <lucide-icon [name]="lockIcon" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></lucide-icon>
                   <input
-                    type="password"
+                    [type]="showPassword ? 'text' : 'password'"
                     [(ngModel)]="signupPassword"
+                    (blur)="validatePassword()"
+                    (input)="validatePassword()"
                     name="signupPassword"
                     required
-                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
-                    placeholder="••••••••"
+                    class="w-full pl-14 pr-12 py-3 rounded-xl bg-slate-800 border text-white placeholder-slate-500 focus:outline-none transition-colors"
+                    [class.border-slate-700]="!passwordError"
+                    [class.border-red-500]="passwordError"
+                    [class.focus:border-cyan-400]="!passwordError"
+                    [class.focus:border-red-500]="passwordError"
+                    placeholder="Au moins 8 caractères"
                   />
+                  <button
+                    type="button"
+                    (click)="showPassword = !showPassword"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
+                  >
+                    <lucide-icon [name]="showPassword ? eyeOffIcon : eyeIcon" class="w-5 h-5"></lucide-icon>
+                  </button>
                 </div>
+                @if (passwordError) {
+                  <p class="mt-1 text-sm text-red-400">{{ passwordError }}</p>
+                } @else if (signupPassword && !passwordError) {
+                  <p class="mt-1 text-xs text-slate-500">Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre</p>
+                }
               </div>
 
               <div>
@@ -99,14 +151,30 @@
                 <div class="relative">
                   <lucide-icon [name]="lockIcon" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></lucide-icon>
                   <input
-                    type="password"
+                    [type]="showConfirmPassword ? 'text' : 'password'"
                     [(ngModel)]="signupConfirmPassword"
+                    (blur)="validateConfirmPassword()"
+                    (input)="validateConfirmPassword()"
                     name="signupConfirmPassword"
                     required
-                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
-                    placeholder="••••••••"
+                    class="w-full pl-14 pr-12 py-3 rounded-xl bg-slate-800 border text-white placeholder-slate-500 focus:outline-none transition-colors"
+                    [class.border-slate-700]="!confirmPasswordError"
+                    [class.border-red-500]="confirmPasswordError"
+                    [class.focus:border-cyan-400]="!confirmPasswordError"
+                    [class.focus:border-red-500]="confirmPasswordError"
+                    placeholder="Confirmez votre mot de passe"
                   />
+                  <button
+                    type="button"
+                    (click)="showConfirmPassword = !showConfirmPassword"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
+                  >
+                    <lucide-icon [name]="showConfirmPassword ? eyeOffIcon : eyeIcon" class="w-5 h-5"></lucide-icon>
+                  </button>
                 </div>
+                @if (confirmPasswordError) {
+                  <p class="mt-1 text-sm text-red-400">{{ confirmPasswordError }}</p>
+                }
               </div>
 
               <button
@@ -208,12 +276,21 @@
                   <input
                     type="email"
                     [(ngModel)]="loginEmail"
+                    (blur)="validateLoginEmail()"
+                    (input)="validateLoginEmail()"
                     name="loginEmail"
                     required
-                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
+                    class="w-full pl-14 pr-4 py-3 rounded-xl bg-slate-800 border text-white placeholder-slate-500 focus:outline-none transition-colors"
+                    [class.border-slate-700]="!emailError"
+                    [class.border-red-500]="emailError"
+                    [class.focus:border-cyan-400]="!emailError"
+                    [class.focus:border-red-500]="emailError"
                     placeholder="votre@email.com"
                   />
                 </div>
+                @if (emailError) {
+                  <p class="mt-1 text-sm text-red-400">{{ emailError }}</p>
+                }
               </div>
 
               <div>
@@ -223,13 +300,20 @@
                 <div class="relative">
                   <lucide-icon [name]="lockIcon" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></lucide-icon>
                   <input
-                    type="password"
+                    [type]="showLoginPassword ? 'text' : 'password'"
                     [(ngModel)]="loginPassword"
                     name="loginPassword"
                     required
-                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
+                    class="w-full pl-14 pr-12 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition-colors"
                     placeholder="••••••••"
                   />
+                  <button
+                    type="button"
+                    (click)="showLoginPassword = !showLoginPassword"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
+                  >
+                    <lucide-icon [name]="showLoginPassword ? eyeOffIcon : eyeIcon" class="w-5 h-5"></lucide-icon>
+                  </button>
                 </div>
               </div>
 

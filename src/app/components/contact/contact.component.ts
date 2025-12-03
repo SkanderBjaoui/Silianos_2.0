@@ -59,21 +59,28 @@ export class ContactComponent {
         phone: this.contactForm.phone,
         subject: this.contactForm.subject,
         message: this.contactForm.message
+      }).subscribe({
+        next: () => {
+          this.success = true;
+          this.contactForm = {
+            name: '',
+            email: '',
+            phone: '',
+            subject: 'Demande de contact',
+            message: ''
+          };
+          
+          setTimeout(() => {
+            this.submitted = false;
+            this.success = false;
+          }, 5000);
+        },
+        error: (err) => {
+          console.error('Erreur lors de l\'envoi du message :', err);
+          this.submitted = false;
+          alert('Erreur lors de l\'envoi du message. Veuillez réessayer.');
+        }
       });
-      
-      this.success = true;
-      this.contactForm = {
-        name: '',
-        email: '',
-        phone: '',
-        subject: 'Demande de contact',
-        message: ''
-      };
-      
-      setTimeout(() => {
-        this.submitted = false;
-        this.success = false;
-      }, 5000);
     }
   }
 }

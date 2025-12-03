@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
   <app-navbar></app-navbar>
 
-  <section class="pt-32 pb-20 relative overflow-hidden scroll-reveal" data-reveal-delay="80ms">
+  <section class="pt-32 pb-32 relative overflow-hidden scroll-reveal" data-reveal-delay="80ms">
     <!-- Decorative Elements -->
     <div class="absolute top-0 left-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-15 -translate-x-1/2 -translate-y-1/2"></div>
     <div class="absolute bottom-0 right-0 w-96 h-96 bg-emerald-200 rounded-full blur-3xl opacity-15 translate-x-1/2 translate-y-1/2"></div>
@@ -18,7 +18,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        @for (testimonial of testimonials; track testimonial.id; let idx = $index) {
+        @for (testimonial of displayedTestimonials; track testimonial.id; let idx = $index) {
           <div
             class="group relative rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-slate-800 scroll-reveal"
             [attr.data-reveal-delay]="(idx * 90) + 'ms'"
@@ -58,6 +58,18 @@
           </div>
         }
       </div>
+      
+      <!-- Toggle: only show when there are more than 3 verified testimonials -->
+      @if (testimonials.length > 3) {
+        <div class="mt-12 text-center">
+          <button (click)="showAll = !showAll" aria-label="Afficher plus de témoignages" class="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white hover:bg-slate-700">
+            {{ showAll ? 'Afficher moins' : 'Afficher plus' }}
+          </button>
+        </div>
+      }
+
+      <!-- larger spacer so footer doesn't sit flush against the content -->
+      <div class="h-16" aria-hidden="true"></div>
     </div>
   </section>
 

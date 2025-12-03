@@ -8,6 +8,16 @@
 
   <!-- Bookings Table -->
   <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-800 overflow-hidden">
+    <div class="p-4 flex items-center gap-3">
+      <input [(ngModel)]="filterQuery" name="filterQuery" type="text" placeholder="Rechercher par client, service, email..." class="rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none flex-1" />
+      <select [(ngModel)]="statusFilter" name="statusFilter" class="rounded-xl bg-slate-800 border border-slate-700 text-white px-3 py-2 focus:border-emerald-400 focus:outline-none text-sm">
+        <option value="">Tous statuts</option>
+        <option value="pending">En attente</option>
+        <option value="confirmed">Confirmé</option>
+        <option value="completed">Terminé</option>
+        <option value="cancelled">Annulé</option>
+      </select>
+    </div>
     <div class="overflow-x-auto">
       <table class="w-full">
         <thead class="bg-slate-800/50">
@@ -21,7 +31,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-800">
-          @for (booking of bookings; track booking.id) {
+          @for (booking of filteredBookings; track booking.id) {
             <tr class="hover:bg-slate-800/30 transition-colors">
               <td class="px-6 py-4">
                 <div>

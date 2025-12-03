@@ -1,38 +1,231 @@
 <div class="space-y-6">
   <div class="flex items-center justify-between">
     <h1 class="text-3xl font-bold text-white">Gestion des Tarifs</h1>
-    <button class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all">
+    <button 
+      class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+      (click)="openCreateModal()"
+    >
       + Ajouter un tarif
     </button>
   </div>
 
-  <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-800 overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-slate-800/50">
-          <tr>
-            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase">Package</th>
-            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase">Prix</th>
-            <th class="px-6 py-4 text-right text-xs font-semibold text-slate-300 uppercase">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-800">
-          @for (pkg of packages; track pkg.id) {
-            <tr class="hover:bg-slate-800/30 transition-colors">
-              <td class="px-6 py-4 text-white font-semibold">{{ pkg.title }}</td>
-              <td class="px-6 py-4 text-slate-300">{{ pkg.price }} {{ pkg.currency }}</td>
-              <td class="px-6 py-4">
-                <div class="flex items-center justify-end gap-2">
-                  <button class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-sm transition-colors">
-                    Modifier
-                  </button>
-                </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+  @if (loading) {
+    <div class="text-center py-12">
+      <p class="text-slate-400">Chargement des tarifs...</p>
     </div>
-  </div>
+  } @else if (packages.length === 0) {
+    <div class="text-center py-12 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-800">
+      <p class="text-slate-400 text-lg mb-2">Aucun tarif ajouté</p>
+      <p class="text-slate-500 text-sm">Veuillez ajouter un tarif pour commencer</p>
+    </div>
+  } @else {
+    <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-800 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-slate-800/50">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase">Package</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase">Prix</th>
+              <th class="px-6 py-4 text-right text-xs font-semibold text-slate-300 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800">
+            @for (pkg of packages; track pkg.id) {
+              <tr class="hover:bg-slate-800/30 transition-colors">
+                <td class="px-6 py-4 text-white font-semibold">{{ pkg.title }}</td>
+                <td class="px-6 py-4 text-slate-300">{{ pkg.price }} {{ pkg.currency }}</td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center justify-end gap-2">
+                    <button 
+                      class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-sm transition-colors flex items-center gap-2"
+                      (click)="openEditModal(pkg)"
+                    >
+                      <lucide-icon [name]="editIcon" class="w-4 h-4"></lucide-icon>
+                      Modifier
+                    </button>
+                    <button 
+                      class="px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 text-sm transition-colors"
+                      (click)="deletePackage(pkg.id)"
+                    >
+                      <lucide-icon [name]="trashIcon" class="w-4 h-4"></lucide-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
 </div>
 
+@if (showModal) {
+  <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50" (click)="closeModal()">
+    <div class="w-full max-w-lg bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl max-h-[90vh] flex flex-col" (click)="$event.stopPropagation(); showCurrencyDropdown = false">
+      <div class="flex items-center justify-between p-6 border-b border-slate-800">
+        <div>
+          <p class="text-xs uppercase tracking-wide text-slate-400">
+            {{ isCreateMode ? 'Nouveau tarif' : 'Modifier le tarif' }}
+          </p>
+          <h2 class="text-2xl font-semibold text-white">
+            {{ isCreateMode ? 'Ajouter un tarif' : editedPackage?.title }}
+          </h2>
+        </div>
+        <button class="text-slate-400 hover:text-white text-2xl leading-none" (click)="closeModal()">×</button>
+      </div>
+
+      <form class="p-6 space-y-5 overflow-y-auto" novalidate (ngSubmit)="savePackage()">
+        <div class="grid gap-2">
+          <label class="block text-sm font-semibold text-slate-300 mb-2">Titre</label>
+          <input
+            [(ngModel)]="editForm.title"
+            name="title"
+            required
+            class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+            placeholder="Ex: Visa EAU"
+          />
+        </div>
+
+        <div class="grid gap-2">
+          <label class="block text-sm font-semibold text-slate-300 mb-2">Description</label>
+          <textarea
+            [(ngModel)]="editForm.description"
+            name="description"
+            rows="3"
+            class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+            placeholder="Description du tarif..."
+          ></textarea>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="grid gap-2">
+            <label class="block text-sm font-semibold text-slate-300 mb-2">Prix</label>
+            <input
+              [(ngModel)]="editForm.price"
+              name="price"
+              type="number"
+              step="0.01"
+              min="0"
+              required
+              class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="grid gap-2">
+            <label class="block text-sm font-semibold text-slate-300 mb-2">Devise</label>
+            <div class="relative">
+              <button
+                type="button"
+                (click)="showCurrencyDropdown = !showCurrencyDropdown; $event.stopPropagation()"
+                class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none flex items-center justify-between"
+              >
+                <span class="flex items-center gap-2">
+                  <span class="text-lg">{{ getSelectedCurrency().flag }}</span>
+                  <span>{{ getSelectedCurrency().code }} - {{ getSelectedCurrency().name }}</span>
+                </span>
+                <span class="text-slate-400">▼</span>
+              </button>
+              @if (showCurrencyDropdown) {
+                <div class="absolute z-50 w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl max-h-64 overflow-y-auto" (click)="$event.stopPropagation()">
+                  @for (currency of availableCurrencies; track currency.code) {
+                    <button
+                      type="button"
+                      (click)="selectCurrency(currency); $event.stopPropagation()"
+                      class="w-full px-4 py-3 text-left hover:bg-slate-700 flex items-center gap-3 text-white transition-colors"
+                      [class.bg-slate-700]="editForm.currency === currency.code"
+                    >
+                      <span class="text-lg">{{ currency.flag }}</span>
+                      <div class="flex-1">
+                        <div class="font-semibold">{{ currency.code }}</div>
+                        <div class="text-xs text-slate-400">{{ currency.name }}</div>
+                      </div>
+                      @if (editForm.currency === currency.code) {
+                        <span class="text-emerald-400">✓</span>
+                      }
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-2">
+          <label class="block text-sm font-semibold text-slate-300 mb-2">Dates (début → fin)</label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input
+              [(ngModel)]="editForm.startDate"
+              name="startDate"
+              type="date"
+              required
+              class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+            />
+            <input
+              [(ngModel)]="editForm.endDate"
+              name="endDate"
+              type="date"
+              required
+              class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div class="grid gap-2">
+          <label class="block text-sm font-semibold text-slate-300 mb-2">Image (URL)</label>
+          <input
+            [(ngModel)]="editForm.image"
+            name="image"
+            type="url"
+            class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+            placeholder="https://..."
+          />
+        </div>
+
+        <div class="grid gap-2">
+          <label class="block text-sm font-semibold text-slate-300 mb-2">Badge</label>
+          <input
+            [(ngModel)]="editForm.badge"
+            name="badge"
+            class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+            placeholder="Ex: Populaire, Nouveau"
+          />
+        </div>
+
+        <div class="grid gap-2">
+          <label class="block text-sm font-semibold text-slate-300 mb-2">
+            Caractéristiques (séparées par une virgule)
+          </label>
+          <textarea
+            [(ngModel)]="editForm.features"
+            name="features"
+            rows="3"
+            class="w-full rounded-xl bg-slate-800 border border-slate-700 text-white px-4 py-2 focus:border-emerald-400 focus:outline-none"
+            placeholder="Caractéristique 1, Caractéristique 2, ..."
+          ></textarea>
+        </div>
+
+        <div class="grid gap-2">
+          <label class="flex items-center gap-2 text-sm font-semibold text-slate-300">
+            <input
+              [(ngModel)]="editForm.isActive"
+              name="isActive"
+              type="checkbox"
+              class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-emerald-400"
+            />
+            Actif
+          </label>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4">
+          <button type="button" class="px-4 py-2 rounded-xl border border-slate-600 text-slate-300 hover:border-slate-500" (click)="closeModal()">
+            Annuler
+          </button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold">
+            {{ isCreateMode ? 'Créer' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { LucideAngularModule, Plane, MapPin, Phone } from 'lucide-angular';
+import { DataService, Service } from '../../services/data.service';
 
 @Component({
   selector: 'app-footer',
@@ -15,8 +16,17 @@ export class FooterComponent {
   mapPinIcon = MapPin;
   phoneIcon = Phone;
   currentYear = new Date().getFullYear();
+  footerServices: Service[] = [];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private dataService: DataService) {}
+
+  ngOnInit() {
+    this.dataService.getServices().subscribe(services => {
+      const active = (services || []).filter(s => s.status === 'active');
+      const shuffled = active.sort(() => Math.random() - 0.5);
+      this.footerServices = shuffled.slice(0, 4);
+    });
+  }
 
   scrollToSection(sectionId: string, event: Event) {
     event.preventDefault();

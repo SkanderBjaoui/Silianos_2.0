@@ -1,7 +1,18 @@
 <div class="min-h-screen bg-slate-950 text-slate-100">
   <app-navbar></app-navbar>
 
-  @if (service) {
+  @if (loading) {
+    <section class="pt-32 pb-32 text-center">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400"></div>
+      <p class="text-slate-400 mt-4">Chargement du service...</p>
+    </section>
+  } @else if (notFound || !service) {
+    <section class="pt-32 pb-32 text-center scroll-reveal">
+      <h1 class="text-4xl font-bold text-white mb-4">Service non trouvé</h1>
+      <p class="text-slate-400 mb-6">Le service que vous recherchez n'existe pas ou n'est plus disponible.</p>
+      <a routerLink="/services" class="text-cyan-400 hover:text-cyan-300">Retour aux services</a>
+    </section>
+  } @else {
     <section class="pt-32 pb-32 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden scroll-reveal" data-reveal-delay="80ms">
       <!-- Decorative Elements -->
       <div class="absolute top-0 left-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-15 -translate-x-1/2 -translate-y-1/2"></div>
@@ -28,12 +39,22 @@
             />
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/50 to-transparent"></div>
             <div class="absolute bottom-0 left-0 right-0 p-8">
-              <h1 [class]="'text-4xl md:text-5xl font-premium font-bold text-white mb-4 bg-gradient-to-r ' + service.color + ' bg-clip-text text-transparent'">
+              <h1 class="text-4xl md:text-5xl font-premium font-bold text-white mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-600">
                 {{ service.title }}
               </h1>
-              <p class="text-xl text-slate-300 max-w-3xl">
+              <p class="text-xl text-slate-300 max-w-3xl mb-4">
                 {{ service.description }}
               </p>
+              <div class="flex flex-wrap items-center gap-6 text-lg font-semibold">
+                <span class="text-white text-3xl">{{ displayPrice | number:'1.0-0' }} {{ selectedCurrency }}</span>
+                <span class="text-slate-300 text-base">
+                  @if (service.durationDays) {
+                    Durée maximale: {{ service.durationDays }} jours
+                  } @else {
+                    Durée flexible
+                  }
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -56,7 +77,7 @@
               <div class="space-y-4">
                 @for (benefit of service.benefits; track benefit) {
                   <div class="flex items-start gap-3">
-                    <div [class]="'w-6 h-6 rounded-full bg-gradient-to-r ' + service.color + ' flex items-center justify-center flex-shrink-0 mt-0.5'">
+                    <div class="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-cyan-600 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <lucide-icon [name]="checkIcon" class="w-4 h-4 text-white"></lucide-icon>
                     </div>
                     <p class="text-slate-300">{{ benefit }}</p>
@@ -74,7 +95,7 @@
               <div class="space-y-3">
                 @for (feature of service.features; track feature) {
                   <div class="flex items-center gap-2 text-slate-300">
-                    <div [class]="'w-2 h-2 bg-gradient-to-r ' + service.color + ' rounded-full'"></div>
+                    <div class="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full"></div>
                     <span>{{ feature }}</span>
                   </div>
                 }
@@ -82,29 +103,134 @@
             </div>
 
             <!-- CTA Card -->
-            <div [class]="'bg-gradient-to-br ' + service.color + ' rounded-3xl p-6 text-white scroll-reveal'" data-reveal-delay="380ms">
-              <h3 class="text-xl font-bold mb-4">Intéressé par ce service?</h3>
-              <p class="text-white/90 mb-6">
-                Contactez-nous dès maintenant pour obtenir un devis personnalisé
+            <div class="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-3xl p-6 text-white scroll-reveal" data-reveal-delay="380ms">
+              <h3 class="text-xl font-bold mb-4">Prêt à réserver ?</h3>
+              <p class="text-white/90 mb-4">
+                {{ displayPrice | number:'1.0-0' }} {{ selectedCurrency }} / voyageur
               </p>
-              <a
-                routerLink="/booking"
+              <p class="text-white/80 mb-6 text-sm">
+                @if (service.durationDays) {
+                  Durée maximale: {{ service.durationDays }} jours à partir de votre date de départ
+                } @else {
+                  Dates flexibles disponibles
+                }
+              </p>
+              <button
+                type="button"
+                (click)="openReservationModal()"
                 class="block w-full text-center py-3 px-6 bg-white text-slate-900 rounded-xl font-semibold hover:bg-slate-100 transition-colors"
               >
                 Réserver maintenant
-              </a>
+              </button>
             </div>
           </div>
         </div>
       </div>
     </section>
-  } @else {
-    <section class="pt-32 pb-32 text-center scroll-reveal">
-      <h1 class="text-4xl font-bold text-white mb-4">Service non trouvé</h1>
-      <a routerLink="/services" class="text-cyan-400 hover:text-cyan-300">Retour aux services</a>
-    </section>
   }
 
   <app-footer></app-footer>
+
+  @if (showReservationModal && service) {
+    <div class="fixed inset-0 z-[10000] flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" (click)="closeReservationModal()"></div>
+      <div class="relative z-10 max-w-3xl w-full mx-4 rounded-3xl border border-slate-800 bg-slate-950 p-8 shadow-2xl space-y-6">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs uppercase tracking-[0.4em] text-cyan-300">Réservation</p>
+            <h2 class="text-3xl font-bold text-white mt-2">{{ service.title }}</h2>
+            <p class="text-slate-400 text-sm">
+              {{ displayPrice | number:'1.0-0' }} {{ selectedCurrency }} / voyageur
+            </p>
+          </div>
+          <button (click)="closeReservationModal()" class="text-slate-400 hover:text-white transition">
+            <lucide-icon [name]="arrowLeftIcon" class="w-6 h-6 rotate-45"></lucide-icon>
+          </button>
+        </div>
+
+        <form (ngSubmit)="submitReservation()" class="space-y-5">
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs text-slate-400">Nom complet</label>
+              <input type="text" [(ngModel)]="reservationForm.customerName" name="customerName" class="mt-1 input-field" required />
+            </div>
+            <div>
+              <label class="text-xs text-slate-400">Téléphone</label>
+              <input type="tel" [(ngModel)]="reservationForm.phone" name="phone" class="mt-1 input-field" required />
+            </div>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs text-slate-400">Email</label>
+              <input type="email" [(ngModel)]="reservationForm.email" name="email" class="mt-1 input-field" required />
+            </div>
+            <div>
+              <label class="text-xs text-slate-400">Destination</label>
+              <input type="text" [(ngModel)]="reservationForm.destination" name="destination" class="mt-1 input-field" placeholder="Ex: Dubai" />
+            </div>
+          </div>
+          <div class="grid md:grid-cols-3 gap-4">
+            <div>
+              <label class="text-xs text-slate-400">Départ</label>
+              <input
+                type="date"
+                [(ngModel)]="reservationForm.departureDate"
+                name="departureDate"
+                class="mt-1 input-field"
+                required
+                (ngModelChange)="onDepartureDateChange()"
+              />
+            </div>
+            <div>
+              <label class="text-xs text-slate-400">Retour</label>
+              <input
+                type="date"
+                [(ngModel)]="reservationForm.returnDate"
+                name="returnDate"
+                class="mt-1 input-field"
+                [min]="reservationForm.departureDate || null"
+                [max]="getMaxReturnDate() || null"
+                (ngModelChange)="onReturnDateChange()"
+              />
+            </div>
+            <div>
+              <label class="text-xs text-slate-400">Voyageurs</label>
+              <input type="number" min="1" [(ngModel)]="reservationForm.numberOfTravelers" name="numberOfTravelers" class="mt-1 input-field" />
+            </div>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Notes</label>
+            <textarea rows="3" [(ngModel)]="reservationForm.notes" name="notes" class="mt-1 input-field resize-none"></textarea>
+          </div>
+          <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+            <p class="text-sm text-slate-300">
+              Total estimé:
+              <span class="text-white font-semibold">
+                {{ displayPrice * reservationForm.numberOfTravelers | number:'1.0-0' }}
+                {{ selectedCurrency }}
+              </span>
+            </p>
+            <p class="text-xs text-slate-500 mt-1">
+              La devise sélectionnée pour ce service est {{ selectedCurrency }}.
+            </p>
+          </div>
+          <button
+            type="submit"
+            [disabled]="!isReservationValid() || reservationLoading"
+            class="w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-emerald-500 py-3 font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all disabled:opacity-50"
+          >
+            @if (reservationLoading) {
+              Confirmation en cours...
+            } @else {
+              Confirmer la réservation
+            }
+          </button>
+          @if (reservationSuccess) {
+            <p class="text-center text-emerald-300 text-sm">Réservation envoyée avec succès !</p>
+          }
+        </form>
+      </div>
+    </div>
+  }
 </div>
 

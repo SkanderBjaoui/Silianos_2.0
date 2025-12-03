@@ -231,6 +231,15 @@
   }
 }
 
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
 @keyframes shine {
   0% {
     background-position: -100% 0;

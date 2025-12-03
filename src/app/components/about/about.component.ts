@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Plane } from 'lucide-angular';
+import { TypewriterDirective } from '../../directives/typewriter.directive';
 
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TypewriterDirective],
   templateUrl: './about.component.html',
   styleUrl: './about.component.css'
 })

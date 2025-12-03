@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { ScrollRevealService } from './shared/scroll-reveal.service';
 import { ScrollToTopComponent } from './components/scroll-to-top/scroll-to-top.component';
+import { ConfirmModalComponent } from './shared/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +11,8 @@ import { ScrollToTopComponent } from './components/scroll-to-top/scroll-to-top.c
   imports: [
     CommonModule,
     RouterOutlet,
-    ScrollToTopComponent
+    ScrollToTopComponent,
+    ConfirmModalComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'

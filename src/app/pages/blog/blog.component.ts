@@ -26,16 +26,22 @@ export class BlogComponent implements OnInit {
   constructor(private dataService: DataService) {}
 
   ngOnInit() {
-    this.posts = this.dataService.getBlogPosts();
-    this.categories = ['all', ...new Set(this.posts.map(p => p.category))];
+    this.dataService.getBlogPosts().subscribe(posts => {
+      this.posts = posts;
+      this.categories = ['all', ...new Set(posts.map(p => p.category))];
+    });
   }
 
   filterByCategory(category: string) {
     this.selectedCategory = category;
     if (category === 'all') {
-      this.posts = this.dataService.getBlogPosts();
+      this.dataService.getBlogPosts().subscribe(posts => {
+        this.posts = posts;
+      });
     } else {
-      this.posts = this.dataService.getBlogPosts().filter(p => p.category === category);
+      this.dataService.getBlogPosts().subscribe(posts => {
+        this.posts = posts.filter(p => p.category === category);
+      });
     }
   }
 

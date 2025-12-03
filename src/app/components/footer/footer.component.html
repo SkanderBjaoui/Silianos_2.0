@@ -52,18 +52,11 @@
       <div>
         <h3 class="text-xl font-bold mb-6 text-white">Nos Services</h3>
         <ul class="space-y-3">
-          <li>
-            <a [routerLink]="['/services/omra-hajj']" class="text-blue-300 hover:text-cyan-400 transition-colors font-medium">Omra & Hajj</a>
-          </li>
-          <li>
-            <a [routerLink]="['/services/visas']" class="text-blue-300 hover:text-cyan-400 transition-colors font-medium">Visas Internationaux</a>
-          </li>
-          <li>
-            <a [routerLink]="['/services/circuit-sud']" class="text-blue-300 hover:text-cyan-400 transition-colors font-medium">Circuits Sud Tunisien</a>
-          </li>
-          <li>
-            <a [routerLink]="['/services/voyage-mesure']" class="text-blue-300 hover:text-cyan-400 transition-colors font-medium">Voyages sur Mesure</a>
-          </li>
+          @for (s of footerServices; track s.id) {
+            <li>
+              <a [routerLink]="['/services', s.id]" class="text-blue-300 hover:text-cyan-400 transition-colors font-medium">{{ s.title }}</a>
+            </li>
+          }
         </ul>
       </div>
 
@@ -74,15 +67,16 @@
           <li class="flex items-start space-x-3">
             <lucide-icon [name]="mapPinIcon" class="w-5 h-5 text-cyan-400 flex-shrink-0 mt-1"></lucide-icon>
             <span class="text-blue-300">
-              Rue Ahmed Ibn Abi Dhiaf<br />Siliana, Tunisie
+              SilianosVoyageServices&#64;gmail.com
             </span>
           </li>
           <li class="flex items-start space-x-3">
             <lucide-icon [name]="phoneIcon" class="w-5 h-5 text-cyan-400 flex-shrink-0 mt-1"></lucide-icon>
-            <div class="text-blue-300">
-              <div>98 147 666</div>
-              <div>98 140 565</div>
-            </div>
+            <a class="text-blue-300 hover:text-cyan-400 transition-colors font-medium" href="tel:+21612345678">+216 12 345 678</a>
+          </li>
+          <li class="flex items-start space-x-3">
+            <lucide-icon [name]="phoneIcon" class="w-5 h-5 text-cyan-400 flex-shrink-0 mt-1"></lucide-icon>
+            <a class="text-blue-300 hover:text-cyan-400 transition-colors font-medium" href="tel:+21698765432">+216 98 765 432</a>
           </li>
         </ul>
       </div>

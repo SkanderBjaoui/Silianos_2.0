@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Mail, Trash2, Check, Eye, X } from 'lucide-angular';
 import { DataService, ContactMessage } from '../../services/data.service';
 
 @Component({
   selector: 'app-admin-messages',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './admin-messages.component.html',
   styleUrl: './admin-messages.component.css'
 })
@@ -20,6 +21,20 @@ export class AdminMessagesComponent implements OnInit {
   messages: ContactMessage[] = [];
   selectedMessage: ContactMessage | null = null;
   showModal = false;
+  filterQuery: string = '';
+
+  get filteredMessages(): ContactMessage[] {
+    const q = this.filterQuery.trim().toLowerCase();
+    if (!q) return this.messages;
+    return this.messages.filter(m => {
+      return (
+        (m.name || '').toLowerCase().includes(q) ||
+        (m.email || '').toLowerCase().includes(q) ||
+        (m.subject || '').toLowerCase().includes(q) ||
+        (m.message || '').toLowerCase().includes(q)
+      );
+    });
+  }
 
   constructor(private dataService: DataService) {}
 
@@ -28,7 +43,9 @@ export class AdminMessagesComponent implements OnInit {
   }
 
   loadMessages() {
-    this.messages = this.dataService.getContactMessages();
+    this.dataService.getContactMessages().subscribe(messages => {
+      this.messages = messages;
+    });
   }
 
   getNewMessagesCount(): number {
@@ -36,19 +53,25 @@ export class AdminMessagesComponent implements OnInit {
   }
 
   markAsRead(id: string) {
-    this.dataService.updateMessageStatus(id, 'read');
-    this.loadMessages();
+    this.dataService.updateMessageStatus(id, 'read').subscribe({
+      next: () => this.loadMessages(),
+      error: (err) => console.error('Erreur lors de la mise à jour du statut :', err)
+    });
   }
 
   markAsReplied(id: string) {
-    this.dataService.updateMessageStatus(id, 'replied');
-    this.loadMessages();
+    this.dataService.updateMessageStatus(id, 'replied').subscribe({
+      next: () => this.loadMessages(),
+      error: (err) => console.error('Erreur lors de la mise à jour du statut :', err)
+    });
   }
 
   deleteMessage(id: string) {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce message?')) {
-      this.dataService.deleteMessage(id);
-      this.loadMessages();
+      this.dataService.deleteMessage(id).subscribe({
+        next: () => this.loadMessages(),
+        error: (err) => console.error('Erreur lors de la suppression du message :', err)
+      });
     }
   }
 

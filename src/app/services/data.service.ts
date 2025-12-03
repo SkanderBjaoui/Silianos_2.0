@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
 
 export interface Booking {
   id: string;
   userId?: string;
+  serviceId?: string;
   customerName: string;
   email: string;
   phone: string;
@@ -16,6 +19,10 @@ export interface Booking {
   notes?: string;
   paymentStatus?: 'pending' | 'approved' | 'paid' | 'failed';
   totalAmount?: number;
+  currency?: string;
+  pricingPackageId?: string;
+  packageCurrency?: string;
+  priceSnapshot?: number;
 }
 
 export interface Testimonial {
@@ -61,10 +68,49 @@ export interface GalleryImage {
   date: string;
 }
 
+export interface Service {
+  id: string;
+  title: string;
+  description: string;
+  about?: string;
+  image?: string;
+  price: number;
+  currency: string;
+  country?: string;
+  // Optional legacy dates (kept for backward compatibility)
+  startDate?: string;
+  endDate?: string;
+  // New: maximum duration in days defined by admin
+  durationDays?: number;
+  status: 'active' | 'inactive';
+  benefits?: string[];
+  features?: string[];
+}
+
+export interface PricingPackage {
+  id: string;
+  title: string;
+  description?: string;
+  price: number;
+  currency: string;
+  period?: string;
+  startDate?: string;
+  endDate?: string;
+  image?: string;
+  badge?: string;
+  features?: string[];
+  isActive: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
+  private apiUrl = 'http://localhost:3000/api';
+
+  constructor(private http: HttpClient) {}
+
+  // Keep mock data as fallback (optional - remove later)
   private bookings: Booking[] = [
     {
       id: '1',
@@ -259,137 +305,453 @@ export class DataService {
     }
   ];
 
-  // Bookings
-  getBookings(userId?: string): Booking[] {
-    if (userId) {
-      return this.bookings.filter(b => b.userId === userId);
-    }
-    return [...this.bookings];
-  }
-
-  getBooking(id: string): Booking | undefined {
-    return this.bookings.find(b => b.id === id);
-  }
-
-  addBooking(booking: Omit<Booking, 'id' | 'createdAt' | 'status'>): Booking {
-    const newBooking: Booking = {
-      ...booking,
-      id: Date.now().toString(),
-      status: 'pending',
-      createdAt: new Date().toISOString()
+  // Helper to map database fields to interface
+  private mapBooking(dbBooking: any): Booking {
+    return {
+      id: dbBooking.id.toString(),
+      userId: dbBooking.user_id?.toString(),
+      serviceId: dbBooking.service_id?.toString(),
+      customerName: dbBooking.customer_name,
+      email: dbBooking.email,
+      phone: dbBooking.phone,
+      serviceType: dbBooking.service_type,
+      destination: dbBooking.destination,
+      departureDate: dbBooking.departure_date,
+      returnDate: dbBooking.return_date,
+      numberOfTravelers: dbBooking.number_of_travelers,
+      status: dbBooking.status,
+      createdAt: dbBooking.created_at,
+      notes: dbBooking.notes,
+      paymentStatus: dbBooking.payment_status,
+      totalAmount: dbBooking.total_amount !== null && dbBooking.total_amount !== undefined
+        ? Number(dbBooking.total_amount)
+        : undefined,
+      currency: dbBooking.currency,
+      pricingPackageId: dbBooking.pricing_package_id?.toString(),
+      packageCurrency: dbBooking.package_currency,
+      priceSnapshot: dbBooking.price_snapshot
     };
-    this.bookings.push(newBooking);
-    return newBooking;
   }
 
-  updateBookingStatus(id: string, status: Booking['status']): void {
-    const booking = this.bookings.find(b => b.id === id);
-    if (booking) {
-      booking.status = status;
-      // When admin confirms, set payment status to approved
-      if (status === 'confirmed' && !booking.paymentStatus) {
-        booking.paymentStatus = 'approved';
-      }
-    }
+  // Bookings
+  getBookings(userId?: string): Observable<Booking[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/bookings`).pipe(
+      map(bookings => {
+        const mapped = bookings.map(b => this.mapBooking(b));
+        if (userId) {
+          return mapped.filter(b => b.userId === userId);
+        }
+        return mapped;
+      })
+    );
   }
 
-  updateBookingPaymentStatus(id: string, paymentStatus: Booking['paymentStatus']): void {
-    const booking = this.bookings.find(b => b.id === id);
-    if (booking) {
-      booking.paymentStatus = paymentStatus;
-    }
+  getBooking(id: string): Observable<Booking> {
+    return this.http.get<any>(`${this.apiUrl}/bookings/${id}`).pipe(
+      map(dbBooking => this.mapBooking(dbBooking))
+    );
   }
 
-  deleteBooking(id: string): void {
-    this.bookings = this.bookings.filter(b => b.id !== id);
+  addBooking(booking: Omit<Booking, 'id' | 'createdAt' | 'status'>): Observable<Booking> {
+    const dbFormat = {
+      user_id: booking.userId,
+      service_id: booking.serviceId,
+      customer_name: booking.customerName,
+      email: booking.email,
+      phone: booking.phone,
+      service_type: booking.serviceType,
+      destination: booking.destination,
+      departure_date: booking.departureDate,
+      return_date: booking.returnDate,
+      number_of_travelers: booking.numberOfTravelers,
+      notes: booking.notes,
+      total_amount: booking.totalAmount,
+      currency: booking.currency,
+      pricing_package_id: booking.pricingPackageId,
+      package_currency: booking.packageCurrency,
+      price_snapshot: booking.priceSnapshot
+    };
+    
+    return this.http.post<{id: number, message: string}>(`${this.apiUrl}/bookings`, dbFormat).pipe(
+      map(response => ({
+        ...booking,
+        id: response.id.toString(),
+        status: 'pending' as const,
+        createdAt: new Date().toISOString()
+      }))
+    );
+  }
+
+  updateBookingStatus(id: string, status: Booking['status']): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/bookings/${id}/status`, { status });
+  }
+
+  updateBookingPaymentStatus(id: string, paymentStatus: Booking['paymentStatus']): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/bookings/${id}/payment`, { payment_status: paymentStatus });
+  }
+
+  deleteBooking(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/bookings/${id}`);
+  }
+
+  private mapTestimonial(db: any): Testimonial {
+    return {
+      id: db.id.toString(),
+      customerName: db.customer_name,
+      customerImage: db.customer_image,
+      rating: db.rating,
+      comment: db.comment,
+      service: db.service,
+      date: db.date,
+      verified: db.verified === 1 || db.verified === true
+    };
   }
 
   // Testimonials
-  getTestimonials(): Testimonial[] {
-    return [...this.testimonials];
+  getTestimonials(): Observable<Testimonial[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/testimonials`).pipe(
+      map(testimonials => testimonials.map(t => this.mapTestimonial(t)))
+    );
   }
 
-  addTestimonial(testimonial: Omit<Testimonial, 'id' | 'date' | 'verified'>): Testimonial {
-    const newTestimonial: Testimonial = {
-      ...testimonial,
-      id: Date.now().toString(),
-      date: new Date().toISOString().split('T')[0],
-      verified: false
+  addTestimonial(testimonial: Omit<Testimonial, 'id' | 'date' | 'verified'>): Observable<Testimonial> {
+    const dbFormat = {
+      customer_name: testimonial.customerName,
+      customer_image: testimonial.customerImage,
+      rating: testimonial.rating,
+      comment: testimonial.comment,
+      service: testimonial.service
     };
-    this.testimonials.push(newTestimonial);
-    return newTestimonial;
+    
+    return this.http.post<{id: number, message: string}>(`${this.apiUrl}/testimonials`, dbFormat).pipe(
+      map(response => ({
+        ...testimonial,
+        id: response.id.toString(),
+        date: new Date().toISOString().split('T')[0],
+        verified: false
+      }))
+    );
   }
 
-  deleteTestimonial(id: string): void {
-    this.testimonials = this.testimonials.filter(t => t.id !== id);
+  deleteTestimonial(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/testimonials/${id}`);
+  }
+
+  private mapBlogPost(db: any): BlogPost {
+    return {
+      id: db.id.toString(),
+      title: db.title,
+      excerpt: db.excerpt || '',
+      content: db.content,
+      image: db.image || '',
+      author: db.author,
+      date: db.date,
+      category: db.category,
+      tags: typeof db.tags === 'string' ? JSON.parse(db.tags) : (db.tags || [])
+    };
   }
 
   // Blog Posts
-  getBlogPosts(): BlogPost[] {
-    return [...this.blogPosts];
+  getBlogPosts(): Observable<BlogPost[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/blog`).pipe(
+      map(posts => posts.map(p => this.mapBlogPost(p)))
+    );
   }
 
-  getBlogPost(id: string): BlogPost | undefined {
-    return this.blogPosts.find(p => p.id === id);
+  getBlogPost(id: string): Observable<BlogPost> {
+    return this.http.get<any>(`${this.apiUrl}/blog/${id}`).pipe(
+      map(post => this.mapBlogPost(post))
+    );
   }
 
-  addBlogPost(post: Omit<BlogPost, 'id'>): BlogPost {
-    const newPost: BlogPost = {
-      ...post,
-      id: Date.now().toString()
+  addBlogPost(post: Omit<BlogPost, 'id'>): Observable<BlogPost> {
+    const dbFormat = {
+      title: post.title,
+      excerpt: post.excerpt,
+      content: post.content,
+      image: post.image,
+      author: post.author,
+      date: post.date,
+      category: post.category,
+      tags: post.tags
     };
-    this.blogPosts = [newPost, ...this.blogPosts];
-    return newPost;
+    
+    return this.http.post<{id: number, message: string}>(`${this.apiUrl}/blog`, dbFormat).pipe(
+      map(response => ({
+        ...post,
+        id: response.id.toString()
+      }))
+    );
   }
 
-  updateBlogPost(updatedPost: BlogPost): void {
-    const index = this.blogPosts.findIndex(p => p.id === updatedPost.id);
-    if (index !== -1) {
-      this.blogPosts[index] = { ...updatedPost };
-    }
+  updateBlogPost(updatedPost: BlogPost): Observable<void> {
+    const dbFormat = {
+      title: updatedPost.title,
+      excerpt: updatedPost.excerpt,
+      content: updatedPost.content,
+      image: updatedPost.image,
+      author: updatedPost.author,
+      date: updatedPost.date,
+      category: updatedPost.category,
+      tags: updatedPost.tags
+    };
+    
+    return this.http.put<void>(`${this.apiUrl}/blog/${updatedPost.id}`, dbFormat);
   }
 
-  deleteBlogPost(id: string): void {
-    this.blogPosts = this.blogPosts.filter(p => p.id !== id);
+  deleteBlogPost(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/blog/${id}`);
+  }
+
+  private mapContactMessage(db: any): ContactMessage {
+    return {
+      id: db.id.toString(),
+      name: db.name,
+      email: db.email,
+      phone: db.phone,
+      subject: db.subject,
+      message: db.message,
+      status: db.status,
+      createdAt: db.created_at
+    };
   }
 
   // Contact Messages
-  getContactMessages(): ContactMessage[] {
-    return [...this.contactMessages];
+  getContactMessages(): Observable<ContactMessage[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/messages`).pipe(
+      map(messages => messages.map(m => this.mapContactMessage(m)))
+    );
   }
 
-  addContactMessage(message: Omit<ContactMessage, 'id' | 'createdAt' | 'status'>): ContactMessage {
-    const newMessage: ContactMessage = {
-      ...message,
-      id: Date.now().toString(),
-      status: 'new',
-      createdAt: new Date().toISOString()
+  addContactMessage(message: Omit<ContactMessage, 'id' | 'createdAt' | 'status'>): Observable<ContactMessage> {
+    return this.http.post<{id: number, message: string}>(`${this.apiUrl}/messages`, message).pipe(
+      map(response => ({
+        ...message,
+        id: response.id.toString(),
+        status: 'new' as const,
+        createdAt: new Date().toISOString()
+      }))
+    );
+  }
+
+  updateMessageStatus(id: string, status: ContactMessage['status']): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/messages/${id}/status`, { status });
+  }
+
+  deleteMessage(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/messages/${id}`);
+  }
+
+  private mapGalleryImage(db: any): GalleryImage {
+    return {
+      id: db.id.toString(),
+      title: db.title,
+      image: db.image,
+      category: db.category,
+      description: db.description,
+      date: db.date
     };
-    this.contactMessages.push(newMessage);
-    return newMessage;
-  }
-
-  updateMessageStatus(id: string, status: ContactMessage['status']): void {
-    const message = this.contactMessages.find(m => m.id === id);
-    if (message) {
-      message.status = status;
-    }
-  }
-
-  deleteMessage(id: string): void {
-    this.contactMessages = this.contactMessages.filter(m => m.id !== id);
   }
 
   // Gallery
-  getGalleryImages(category?: string): GalleryImage[] {
-    if (category) {
-      return this.galleryImages.filter(img => img.category === category);
-    }
-    return [...this.galleryImages];
+  getGalleryImages(category?: string): Observable<GalleryImage[]> {
+    const url = (category && category !== 'all') 
+      ? `${this.apiUrl}/gallery/category/${category}`
+      : `${this.apiUrl}/gallery`;
+    
+    return this.http.get<any[]>(url).pipe(
+      map(images => images.map(img => this.mapGalleryImage(img)))
+    );
   }
 
-  getGalleryCategories(): string[] {
-    return [...new Set(this.galleryImages.map(img => img.category))];
+  getGalleryCategories(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/gallery/categories`);
+  }
+
+  addGalleryImage(image: { title: string; image: string; category: string; description?: string | null; date: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/gallery`, image);
+  }
+
+  updateGalleryImage(id: string, image: { title: string; image: string; category: string; description?: string | null; date: string }): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/gallery/${id}`, image);
+  }
+
+  deleteGalleryImage(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/gallery/${id}`);
+  }
+
+  // Testimonial Verification
+  verifyTestimonial(id: string): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/testimonials/${id}/verify`, {});
+  }
+
+  // Services
+  getServices(): Observable<Service[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/services`).pipe(
+      map(services => services.map(s => ({
+        id: s.id.toString(),
+        title: s.title,
+        description: s.description,
+        about: s.about,
+        image: s.image,
+        price: Number(s.price ?? 0),
+        currency: s.currency || 'TND',
+        country: s.country || undefined,
+        startDate: s.start_date || undefined,
+        endDate: s.end_date || undefined,
+        durationDays: s.duration_days ?? undefined,
+        status: s.status,
+        benefits: typeof s.benefits === 'string' ? JSON.parse(s.benefits) : (s.benefits || []),
+        features: typeof s.features === 'string' ? JSON.parse(s.features) : (s.features || [])
+      })))
+    );
+  }
+
+  getService(id: string): Observable<Service> {
+    return this.http.get<any>(`${this.apiUrl}/services/${id}`).pipe(
+      map(s => ({
+        id: s.id.toString(),
+        title: s.title,
+        description: s.description,
+        about: s.about,
+        image: s.image,
+        price: Number(s.price ?? 0),
+        currency: s.currency || 'TND',
+        country: s.country || undefined,
+        startDate: s.start_date || undefined,
+        endDate: s.end_date || undefined,
+        durationDays: s.duration_days ?? undefined,
+        status: s.status,
+        benefits: typeof s.benefits === 'string' ? JSON.parse(s.benefits) : (s.benefits || []),
+        features: typeof s.features === 'string' ? JSON.parse(s.features) : (s.features || [])
+      }))
+    );
+  }
+
+  addService(service: Omit<Service, 'id'>): Observable<Service> {
+    return this.http.post<{id: number, message: string}>(`${this.apiUrl}/services`, {
+      title: service.title,
+      description: service.description,
+      about: service.about,
+      image: service.image,
+      price: service.price,
+      currency: service.currency,
+      country: service.country,
+      start_date: service.startDate,
+      end_date: service.endDate,
+      duration_days: service.durationDays,
+      status: service.status,
+      // Some backends expect JSON strings for arrays - stringify to be safe
+      benefits: service.benefits ? JSON.stringify(service.benefits) : undefined,
+      features: service.features ? JSON.stringify(service.features) : undefined
+    }).pipe(
+      map(response => ({
+        ...service,
+        id: response.id.toString()
+      }))
+    );
+  }
+
+  updateService(service: Service): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/services/${service.id}`, {
+      title: service.title,
+      description: service.description,
+      about: service.about,
+      image: service.image,
+      price: service.price,
+      currency: service.currency,
+      country: service.country,
+      start_date: service.startDate,
+      end_date: service.endDate,
+      duration_days: service.durationDays,
+      status: service.status,
+      benefits: service.benefits ? JSON.stringify(service.benefits) : undefined,
+      features: service.features ? JSON.stringify(service.features) : undefined
+    });
+  }
+
+  deleteService(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/services/${id}`);
+  }
+
+  // Pricing Packages
+  getPricingPackages(): Observable<PricingPackage[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/pricing`).pipe(
+      map(packages => packages.map(p => ({
+        id: p.id.toString(),
+        title: p.title,
+        description: p.description,
+        price: parseFloat(p.price),
+        currency: p.currency,
+        period: p.period,
+        startDate: p.start_date || undefined,
+        endDate: p.end_date || undefined,
+        image: p.image,
+        badge: p.badge,
+        features: typeof p.features === 'string' ? JSON.parse(p.features) : (p.features || []),
+        isActive: p.is_active === 1 || p.is_active === true
+      })))
+    );
+  }
+
+  getPricingPackage(id: string): Observable<PricingPackage> {
+    return this.http.get<any>(`${this.apiUrl}/pricing/${id}`).pipe(
+      map(p => ({
+        id: p.id.toString(),
+        title: p.title,
+        description: p.description,
+        price: parseFloat(p.price),
+        currency: p.currency,
+        period: p.period,
+        startDate: p.start_date || undefined,
+        endDate: p.end_date || undefined,
+        image: p.image,
+        badge: p.badge,
+        features: typeof p.features === 'string' ? JSON.parse(p.features) : (p.features || []),
+        isActive: p.is_active === 1 || p.is_active === true
+      }))
+    );
+  }
+
+  addPricingPackage(pkg: Omit<PricingPackage, 'id'>): Observable<PricingPackage> {
+    return this.http.post<{id: number, message: string}>(`${this.apiUrl}/pricing`, {
+      title: pkg.title,
+      description: pkg.description,
+      price: pkg.price,
+      currency: pkg.currency,
+      period: pkg.period,
+      start_date: pkg.startDate,
+      end_date: pkg.endDate,
+      image: pkg.image,
+      badge: pkg.badge,
+      features: pkg.features,
+      is_active: pkg.isActive
+    }).pipe(
+      map(response => ({
+        ...pkg,
+        id: response.id.toString()
+      }))
+    );
+  }
+
+  updatePricingPackage(pkg: PricingPackage): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/pricing/${pkg.id}`, {
+      title: pkg.title,
+      description: pkg.description,
+      price: pkg.price,
+      currency: pkg.currency,
+      period: pkg.period,
+      start_date: pkg.startDate,
+      end_date: pkg.endDate,
+      image: pkg.image,
+      badge: pkg.badge,
+      features: pkg.features,
+      is_active: pkg.isActive
+    });
+  }
+
+  deletePricingPackage(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/pricing/${id}`);
   }
 }
 

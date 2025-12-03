@@ -16,11 +16,19 @@ export class TestimonialsComponent implements OnInit {
   starIcon = Star;
   quoteIcon = Quote;
   testimonials: Testimonial[] = [];
+  showAll = false;
+
+  get displayedTestimonials(): Testimonial[] {
+    return this.showAll ? this.testimonials : this.testimonials.slice(0, 3);
+  }
 
   constructor(private dataService: DataService) {}
 
   ngOnInit() {
-    this.testimonials = this.dataService.getTestimonials();
+    this.dataService.getTestimonials().subscribe(testimonials => {
+      // Only display testimonials that were verified/approved by admin
+      this.testimonials = (testimonials || []).filter(t => !!t.verified);
+    });
   }
 
   getStars(rating: number): number[] {

@@ -1,0 +1,59 @@
+<div class="relative" #dropdownContainer>
+  <button
+    type="button"
+    (click)="toggleDropdown()"
+    class="flex items-center gap-2 px-3 py-3 rounded-l-xl bg-slate-800 border border-r-0 border-slate-700 text-white hover:bg-slate-700 transition-colors focus:outline-none focus:border-cyan-400 min-w-[100px]"
+  >
+    <span class="text-lg">{{ selectedCountry?.flag }}</span>
+    <span class="text-sm font-medium">{{ selectedCountry?.dialCode }}</span>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+    </svg>
+  </button>
+
+  @if (isOpen) {
+    <div class="absolute top-full left-0 mt-1 w-80 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl z-50 max-h-96 overflow-hidden flex flex-col">
+      <!-- Search Input -->
+      <div class="p-3 border-b border-slate-700">
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput($event)"
+          (click)="$event.stopPropagation()"
+          placeholder="Rechercher un pays..."
+          class="w-full px-4 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
+          autofocus
+        />
+      </div>
+
+      <!-- Countries List -->
+      <div class="overflow-y-auto max-h-80 custom-scrollbar">
+        @for (country of filteredCountriesList; track country.code) {
+          <button
+            type="button"
+            [attr.data-country-code]="country.code"
+            (click)="selectCountry(country)"
+            [class]="'w-full px-4 py-3 flex items-center gap-3 hover:bg-slate-700 transition-colors text-left ' + (selectedCountry?.code === country.code ? 'bg-slate-700/50' : '')"
+          >
+            <span class="text-2xl">{{ country.flag }}</span>
+            <div class="flex-1">
+              <div class="text-white font-medium">{{ country.name }}</div>
+              <div class="text-sm text-slate-400">{{ country.dialCode }}</div>
+            </div>
+            @if (selectedCountry?.code === country.code) {
+              <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            }
+          </button>
+        }
+        @if (filteredCountriesList.length === 0) {
+          <div class="px-4 py-8 text-center text-slate-400">
+            Aucun pays trouvé
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+

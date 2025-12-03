@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, FileText, PlusCircle, Edit } from 'lucide-angular';
+import { LucideAngularModule, FileText, PlusCircle, Edit, Trash2 } from 'lucide-angular';
 import { DataService, BlogPost } from '../../services/data.service';
+import { ConfirmService } from '../../shared/confirm.service';
 
 interface BlogForm {
   title: string;
@@ -29,17 +30,28 @@ export class AdminBlogComponent implements OnInit {
   fileIcon = FileText;
   addIcon = PlusCircle;
   editIcon = Edit;
+  trash2 = Trash2;
+
+  filterQuery: string = '';
+
+  get filteredPosts(): BlogPost[] {
+    const q = this.filterQuery.trim().toLowerCase();
+    if (!q) return this.posts;
+    return this.posts.filter(p => (p.title || '').toLowerCase().includes(q) || (p.author || '').toLowerCase().includes(q) || (p.excerpt || '').toLowerCase().includes(q));
+  }
 
   editForm: BlogForm = this.getEmptyForm();
 
-  constructor(private dataService: DataService) {}
+  constructor(private dataService: DataService, private confirmService: ConfirmService) {}
 
   ngOnInit(): void {
     this.loadPosts();
   }
 
   loadPosts() {
-    this.posts = this.dataService.getBlogPosts();
+    this.dataService.getBlogPosts().subscribe(posts => {
+      this.posts = posts;
+    });
   }
 
   openCreateModal() {
@@ -65,6 +77,7 @@ export class AdminBlogComponent implements OnInit {
 
   closeModal() {
     this.editedPost = null;
+    this.isCreateMode = false;
     this.editForm = this.getEmptyForm();
   }
 
@@ -81,16 +94,40 @@ export class AdminBlogComponent implements OnInit {
     };
 
     if (this.isCreateMode) {
-      this.dataService.addBlogPost(payload);
+      this.dataService.addBlogPost(payload).subscribe({
+        next: () => {
+          this.loadPosts();
+          this.closeModal();
+        },
+        error: (err) => {
+          console.error('Erreur lors de la création de la publication :', err);
+          alert('Erreur lors de la création du post');
+        }
+      });
     } else if (this.editedPost) {
       this.dataService.updateBlogPost({
         ...this.editedPost,
         ...payload
+      }).subscribe({
+        next: () => {
+          this.loadPosts();
+          this.closeModal();
+        },
+        error: (err) => {
+          console.error('Erreur lors de la mise à jour de la publication :', err);
+          alert('Erreur lors de la mise à jour du post');
+        }
       });
     }
+  }
 
-    this.loadPosts();
-    this.closeModal();
+  async deletePost(id: string) {
+    const ok = await this.confirmService.confirm('Êtes-vous sûr de vouloir supprimer cet article ?');
+    if (!ok) return;
+    this.dataService.deleteBlogPost(id).subscribe({
+      next: () => this.loadPosts(),
+      error: (err) => console.error('Erreur lors de la suppression de la publication :', err)
+    });
   }
 
   private parseList(value: string): string[] {

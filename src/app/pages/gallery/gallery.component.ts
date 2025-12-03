@@ -23,17 +23,20 @@ export class GalleryComponent implements OnInit {
   constructor(private dataService: DataService) {}
 
   ngOnInit() {
-    this.images = this.dataService.getGalleryImages();
-    this.categories = ['all', ...this.dataService.getGalleryCategories()];
+    this.dataService.getGalleryImages().subscribe(images => {
+      this.images = images;
+    });
+    
+    this.dataService.getGalleryCategories().subscribe(categories => {
+      this.categories = ['all', ...categories];
+    });
   }
 
   filterByCategory(category: string) {
     this.selectedCategory = category;
-    if (category === 'all') {
-      this.images = this.dataService.getGalleryImages();
-    } else {
-      this.images = this.dataService.getGalleryImages(category);
-    }
+    this.dataService.getGalleryImages(category).subscribe(images => {
+      this.images = images;
+    });
   }
 
   openImage(image: GalleryImage) {

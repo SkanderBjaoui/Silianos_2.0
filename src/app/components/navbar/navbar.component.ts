@@ -1,8 +1,10 @@
 import { Component, OnInit, HostListener, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { LucideAngularModule, Menu, X, ChevronDown, User, LogOut, Layout, Calendar, CreditCard, Heart, Bell, HelpCircle } from 'lucide-angular';
 import { AuthService, User as AuthUser } from '../../services/auth.service';
+import { CURRENCY_OPTIONS, CurrencyOption } from '../../shared/currency-options';
 import { Subscription, filter } from 'rxjs';
 
 interface NavLink {
@@ -21,7 +23,7 @@ interface NavDropdown {
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
@@ -32,8 +34,12 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   closeTimeouts: { [key: string]: any } = {};
   currentUser: AuthUser | null = null;
   userMenuOpen = false;
+  selectedCurrency = 'TND';
+  currencyUpdateLoading = false;
+  currencyOptions = CURRENCY_OPTIONS;
   private userSubscription?: Subscription;
   private routerSubscription?: Subscription;
+  private currencySubscription?: Subscription;
 
   menuIcon = Menu;
   xIcon = X;
@@ -48,6 +54,10 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   helpCircleIcon = HelpCircle;
   
   dashboardMenuOpen = false;
+  currencyMenuOpen = false;
+  // Mobile currency selector state
+  mobileCurrencyOpen = false;
+  mobileCurrencySearch = '';
   
   @ViewChild('dropdownTrigger', { static: false }) dropdownTrigger?: ElementRef;
   @ViewChild('userMenuTrigger', { static: false }) userMenuTrigger?: ElementRef;
@@ -61,21 +71,11 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
         { href: '/', anchor: '#about', label: 'À Propos' },
         { href: '/', anchor: '#why-us', label: 'Pourquoi Nous' },
         { href: '/', anchor: '#services', label: 'Nos Services' },
-        { href: '/', anchor: '#pricing', label: 'Tarifs' },
         { href: '/', anchor: '#contact', label: 'Contact' },
         { href: '/', anchor: '#social', label: 'Nos Réseaux' },
       ]
     },
-    {
-      label: 'Services',
-      href: '/services',
-      links: [
-        { href: '/services/omra-hajj', anchor: '', label: 'Omra & Hajj' },
-        { href: '/services/visas', anchor: '', label: 'Visas Internationaux' },
-        { href: '/services/circuit-sud', anchor: '', label: 'Circuits Sud Tunisien' },
-        { href: '/services/voyage-mesure', anchor: '', label: 'Voyages sur Mesure' },
-      ]
-    },
+    { href: '/services', label: 'Services' },
     { href: '/booking', anchor: '', label: 'Réservation' },
     { href: '/gallery', anchor: '', label: 'Galerie' },
     { href: '/testimonials', anchor: '', label: 'Témoignages' },
@@ -91,6 +91,11 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
     this.handleScroll();
     this.userSubscription = this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+    });
+    // Keep navbar currency in sync with global preference (user or guest)
+    this.selectedCurrency = this.authService.getEffectiveCurrency();
+    this.currencySubscription = this.authService.preferredCurrency$.subscribe(code => {
+      this.selectedCurrency = code;
     });
     
     // Subscribe to route changes to update navbar state
@@ -111,6 +116,7 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy() {
     this.userSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
+    this.currencySubscription?.unsubscribe();
     // Restore body scroll
     document.body.style.overflow = '';
     // Remove event listeners
@@ -172,6 +178,10 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
     // Prevent body scroll when menu is open
     if (this.isOpen) {
       document.body.style.overflow = 'hidden';
+      // Close all desktop dropdowns when opening mobile menu
+      Object.keys(this.openDropdowns).forEach(key => {
+        this.openDropdowns[key] = false;
+      });
     } else {
       document.body.style.overflow = '';
       this.dashboardMenuOpen = false;
@@ -343,6 +353,9 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
       event.stopPropagation();
     }
     this.userMenuOpen = !this.userMenuOpen;
+    if (this.userMenuOpen) {
+      this.currencyMenuOpen = false;
+    }
   }
 
   @HostListener('document:click', ['$event'])
@@ -353,11 +366,103 @@ export class NavbarComponent implements OnInit, OnDestroy, AfterViewInit {
         this.userMenuOpen = false;
       }
     }
+
+    if (this.currencyMenuOpen) {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.currency-menu-trigger')) {
+        this.currencyMenuOpen = false;
+      }
+    }
   }
 
   logout() {
     this.authService.logout();
     this.userMenuOpen = false;
     this.router.navigate(['/']);
+  }
+
+  isSelectedCurrency(option: CurrencyOption): boolean {
+    return option.code === this.selectedCurrency;
+  }
+
+  changeCurrency(option: CurrencyOption) {
+    if (option.code === this.selectedCurrency || this.currencyUpdateLoading) {
+      return;
+    }
+
+    this.selectedCurrency = option.code;
+
+    // If user is not logged in, store preference locally
+    if (!this.currentUser) {
+      this.authService.setGuestPreferredCurrency(option.code);
+      return;
+    }
+
+    // Persist preference for logged-in user
+    this.currencyUpdateLoading = true;
+    this.authService.updateUser(this.currentUser.id, { preferredCurrency: option.code }).subscribe({
+      next: (updatedUser) => {
+        this.selectedCurrency = updatedUser.preferredCurrency || option.code;
+        this.currencyUpdateLoading = false;
+        // Notify other components that currency has changed
+        window.dispatchEvent(new CustomEvent('currencyChanged', { detail: { currency: this.selectedCurrency } }));
+        // close mobile selector if open (note: mobileCurrencyOpen semantics were inverted)
+        this.mobileCurrencyOpen = true;
+      },
+      error: () => {
+        this.currencyUpdateLoading = false;
+        alert('Impossible de mettre à jour la devise pour le moment.');
+      }
+    });
+  }
+
+  toggleMobileCurrency(event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.mobileCurrencyOpen = !this.mobileCurrencyOpen;
+    // Note: UI semantics were swapped: when mobileCurrencyOpen becomes FALSE we show the expanded/search view
+    if (!this.mobileCurrencyOpen) {
+      // clear previous search
+      this.mobileCurrencySearch = '';
+      setTimeout(() => {
+        const input = document.querySelector('.mobile-currency-search') as HTMLInputElement | null;
+        if (input) input.focus();
+      }, 50);
+    }
+  }
+
+  get filteredMobileCurrencies(): CurrencyOption[] {
+    const q = (this.mobileCurrencySearch || '').trim().toLowerCase();
+    if (!q) return this.currencyOptions;
+    return this.currencyOptions.filter(c => c.code.toLowerCase().includes(q) || (c.name || '').toLowerCase().includes(q));
+  }
+
+  toggleCurrencyMenu(event: Event) {
+    event.stopPropagation();
+    this.currencyMenuOpen = !this.currencyMenuOpen;
+    if (this.currencyMenuOpen) {
+      this.userMenuOpen = false;
+    }
+  }
+
+  getCurrencyMenuPosition(): { top: number; right: number } | null {
+    if (!this.currencyMenuOpen) return null;
+
+    const button = document.querySelector('.currency-menu-trigger-button');
+    if (!button) return null;
+
+    const rect = button.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+
+    return {
+      top: rect.bottom + 8,
+      right: viewportWidth - rect.right
+    };
+  }
+
+  getSelectedCurrencyFlag(): string {
+    const found = this.currencyOptions.find(c => c.code === this.selectedCurrency);
+    return found?.flag ?? '💱';
   }
 }

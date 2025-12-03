@@ -17,6 +17,7 @@ import { AdminPricingComponent } from './admin/admin-pricing/admin-pricing.compo
 import { AdminTestimonialsComponent } from './admin/admin-testimonials/admin-testimonials.component';
 import { AdminMessagesComponent } from './admin/admin-messages/admin-messages.component';
 import { AdminBlogComponent } from './admin/admin-blog/admin-blog.component';
+import { AdminGalleryComponent } from './admin/admin-gallery/admin-gallery.component';
 import { AuthComponent } from './pages/auth/auth.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
@@ -45,6 +46,7 @@ export const routes: Routes = [
       { path: 'testimonials', component: AdminTestimonialsComponent },
       { path: 'messages', component: AdminMessagesComponent },
       { path: 'blog', component: AdminBlogComponent },
+      { path: 'gallery', component: AdminGalleryComponent },
     ]
   },
   { path: '**', redirectTo: '' }

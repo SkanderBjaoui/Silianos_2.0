@@ -1,102 +1,305 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { LucideAngularModule, Check, ArrowLeft } from 'lucide-angular';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { LucideAngularModule, Check, ArrowLeft, Mail, Phone, Users, Calendar } from 'lucide-angular';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
-import { ServicesComponent } from '../../components/services/services.component';
+import { DataService, Service } from '../../services/data.service';
+import { AuthService, User as AuthUser } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
+import { CurrencyService } from '../../services/currency.service';
+
+interface ServiceDetailDisplay {
+  id: string;
+  title: string;
+  description: string;
+  fullDescription?: string;
+  image: string;
+  features: string[];
+  benefits?: string[];
+  price: number;
+  currency: string;
+  // Optional legacy dates (ignored for new reservations)
+  startDate?: string;
+  endDate?: string;
+  // Admin-defined maximum duration in days
+  durationDays?: number;
+}
 
 @Component({
   selector: 'app-service-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, NavbarComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule, NavbarComponent, FooterComponent],
   templateUrl: './service-detail.component.html',
   styleUrl: './service-detail.component.css'
 })
 export class ServiceDetailComponent implements OnInit, OnDestroy {
   checkIcon = Check;
   arrowLeftIcon = ArrowLeft;
+  mailIcon = Mail;
+  phoneIcon = Phone;
+  usersIcon = Users;
+  calendarIcon = Calendar;
   serviceId: string | null = null;
-  service: any = null;
-
-  services = [
-    {
-      id: 'omra-hajj',
-      title: 'Omra & Hajj',
-      description: 'Packages complets avec vol direct, hébergement premium et accompagnement religieux',
-      fullDescription: 'Notre service Omra & Hajj offre une expérience spirituelle complète avec des packages soigneusement conçus pour répondre à tous vos besoins. Nous proposons des vols directs, des hébergements de qualité 4-5 étoiles situés à proximité des sites sacrés, et une supervision religieuse experte pour vous guider tout au long de votre pèlerinage.',
-      image: 'assets/ahdj.png',
-      features: ['Vol Direct', 'Hôtels 4-5 étoiles', 'Supervision Religieuse', 'Visites Guidées', 'Assistance 24/7', 'Transport Premium'],
-      benefits: [
-        'Accompagnement par des guides religieux expérimentés',
-        'Hébergement dans les meilleurs hôtels proches de la Grande Mosquée',
-        'Transport confortable et sécurisé',
-        'Assistance complète avant, pendant et après le voyage'
-      ],
-      color: 'from-blue-500 to-cyan-600',
-    },
-    {
-      id: 'visas',
-      title: 'Visas Internationaux',
-      description: 'Traitement rapide de vos demandes de visa pour diverses destinations',
-      fullDescription: 'Nous facilitons l\'obtention de vos visas internationaux avec un service rapide et fiable. Notre équipe expérimentée s\'occupe de toutes les démarches administratives pour vous faire gagner du temps et éviter les tracas.',
-      image: 'https://images.unsplash.com/photo-1569949381669-ecf31ae8e613?w=800&q=80',
-      features: ['EAU - 400 DT/mois', 'Qatar - 280 DT/mois', 'Égypte - 150 DT/mois', 'Oman - à partir de 350 DT', 'Traitement Express', 'Suivi Personnalisé'],
-      benefits: [
-        'Processus simplifié et guidé',
-        'Taux de réussite élevé',
-        'Support client dédié',
-        'Mise à jour en temps réel sur l\'état de votre demande'
-      ],
-      color: 'from-blue-600 to-emerald-600',
-    },
-    {
-      id: 'circuit-sud',
-      title: 'Circuits Sud Tunisien',
-      description: 'Découvrez les merveilles du sud avec confort et aventure',
-      fullDescription: 'Explorez les merveilles du sud tunisien avec nos circuits soigneusement planifiés. De Matmata à Tozeur, en passant par Chebika, découvrez des paysages à couper le souffle et une culture riche.',
-      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-      features: ['Matmata', 'Tozeur', 'Chebika', 'Aventure 4x4', 'Hébergement Inclus', 'Guide Professionnel'],
-      benefits: [
-        'Découverte des sites historiques et naturels',
-        'Aventures en 4x4 dans le désert',
-        'Hébergement confortable inclus',
-        'Guides locaux expérimentés'
-      ],
-      color: 'from-teal-600 to-emerald-700',
-    },
-    {
-      id: 'voyage-mesure',
-      title: 'Voyages sur Mesure',
-      description: 'Créez votre voyage idéal avec notre équipe d\'experts',
-      fullDescription: 'Créez le voyage de vos rêves avec notre service personnalisé. Notre équipe d\'experts travaille avec vous pour concevoir un itinéraire unique qui correspond parfaitement à vos goûts, votre budget et vos attentes.',
-      image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80',
-      features: ['Itinéraire Personnalisé', 'Budget Flexible', 'Assistance Complète', 'Réservation Facile', 'Conseils d\'Experts', 'Support 24/7'],
-      benefits: [
-        'Itinéraire 100% personnalisé selon vos préférences',
-        'Flexibilité totale dans le choix des destinations',
-        'Accompagnement de A à Z',
-        'Meilleur rapport qualité-prix garanti'
-      ],
-      color: 'from-emerald-500 to-teal-600',
-    },
-  ];
+  service: ServiceDetailDisplay | null = null;
+  loading = false;
+  notFound = false;
+  showReservationModal = false;
+  selectedCurrency = 'TND';
+  displayPrice = 0;
+  reservationLoading = false;
+  reservationSuccess = false;
+  pendingReserve = false;
+  currentUser: AuthUser | null = null;
+  reservationForm = {
+    customerName: '',
+    email: '',
+    phone: '',
+    destination: '',
+    departureDate: '',
+    returnDate: '',
+    numberOfTravelers: 1,
+    notes: ''
+  };
 
   private routeSub?: Subscription;
+  private userSub?: Subscription;
+  private currencySub?: Subscription;
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private dataService: DataService,
+    private authService: AuthService,
+    private currencyService: CurrencyService
+  ) {}
 
   ngOnInit() {
+    this.userSub = this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+    });
+
+    // Initialize and reactively update selected currency from global preference
+    this.selectedCurrency = this.authService.getEffectiveCurrency();
+    this.currencySub = this.authService.preferredCurrency$.subscribe(code => {
+      this.selectedCurrency = code;
+      this.updateDisplayPrice();
+    });
+
     this.routeSub = this.route.paramMap.subscribe(params => {
       this.serviceId = params.get('id');
-      this.service = this.services.find(s => s.id === this.serviceId);
+      this.pendingReserve = this.route.snapshot.queryParamMap.get('reserve') === '1';
+      if (this.serviceId) {
+        this.loadService(this.serviceId);
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  loadService(id: string) {
+    this.loading = true;
+    this.notFound = false;
+    
+    this.dataService.getService(id).subscribe({
+      next: (dbService: Service) => {
+        if (dbService.status === 'active') {
+          this.service = {
+            id: dbService.id,
+            title: dbService.title,
+            description: dbService.description,
+            fullDescription: dbService.about,
+            image: dbService.image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80',
+            features: dbService.features || [],
+            benefits: dbService.benefits || [],
+            price: dbService.price,
+            currency: dbService.currency || 'TND',
+            startDate: dbService.startDate,
+            endDate: dbService.endDate,
+            durationDays: dbService.durationDays
+          };
+          this.updateDisplayPrice();
+          if (this.pendingReserve) {
+            setTimeout(() => {
+              this.openReservationModal();
+            }, 300);
+            this.pendingReserve = false;
+          }
+        } else {
+          this.notFound = true;
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement du service :', err);
+        this.notFound = true;
+        this.loading = false;
+      }
+    });
+  }
+
+  private updateDisplayPrice() {
+    if (!this.service) {
+      this.displayPrice = 0;
+      return;
+    }
+
+    const fromCurrency = this.service.currency || 'TND';
+    const toCurrency = this.selectedCurrency || fromCurrency;
+
+    // Ensure rates are loaded at least once; conversion will be no-op until they are ready
+    this.currencyService.loadRates().subscribe(() => {
+      this.displayPrice = this.currencyService.convert(
+        this.service!.price,
+        fromCurrency,
+        toCurrency
+      );
     });
   }
 
   ngOnDestroy() {
     this.routeSub?.unsubscribe();
+    this.userSub?.unsubscribe();
+    this.currencySub?.unsubscribe();
   }
+
+  openReservationModal() {
+    if (!this.service) {
+      return;
+    }
+
+    // If user is not logged in, redirect to login instead of opening modal
+    if (!this.currentUser) {
+      const servicePath = `/services/${this.service.id}`;
+      this.router.navigate(['/login'], {
+        queryParams: {
+          redirectTo: servicePath,
+          reserve: 1,
+          currency: this.selectedCurrency
+        }
+      });
+      return;
+    }
+    this.showReservationModal = true;
+    this.reservationSuccess = false;
+    this.reservationLoading = false;
+    this.reservationForm = {
+      customerName: this.currentUser?.name || '',
+      email: this.currentUser?.email || '',
+      phone: this.currentUser?.phone || '',
+      destination: this.service.title,
+      departureDate: '',
+      returnDate: '',
+      numberOfTravelers: 1,
+      notes: ''
+    };
+  }
+
+  closeReservationModal() {
+    this.showReservationModal = false;
+    this.reservationLoading = false;
+  }
+
+  isReservationValid(): boolean {
+    return !!(
+      this.reservationForm.customerName &&
+      this.reservationForm.email &&
+      this.reservationForm.phone &&
+      this.reservationForm.departureDate &&
+      this.service
+    );
+  }
+
+  getMaxReturnDate(): string | null {
+    if (!this.service?.durationDays || !this.reservationForm.departureDate) {
+      return null;
+    }
+    // Use UTC-based calculation to avoid timezone/off-by-one issues
+    const [year, month, day] = this.reservationForm.departureDate.split('-').map(Number);
+    const startUtc = Date.UTC(year, (month ?? 1) - 1, day ?? 1);
+    const durationMs = this.service.durationDays * 24 * 60 * 60 * 1000;
+    const endUtc = startUtc + durationMs;
+    const endDate = new Date(endUtc);
+    return endDate.toISOString().split('T')[0];
+  }
+
+  onDepartureDateChange() {
+    const max = this.getMaxReturnDate();
+    if (max) {
+      this.reservationForm.returnDate = max;
+    } else {
+      this.reservationForm.returnDate = '';
+    }
+  }
+
+  onReturnDateChange() {
+    const max = this.getMaxReturnDate();
+    const departure = this.reservationForm.departureDate;
+    const ret = this.reservationForm.returnDate;
+
+    if (!ret) {
+      return;
+    }
+
+    // Enforce return >= departure when a departure date exists
+    if (departure && ret < departure) {
+      this.reservationForm.returnDate = departure;
+      return;
+    }
+
+    // Enforce max duration if defined
+    if (max && ret > max) {
+      this.reservationForm.returnDate = max;
+    }
+  }
+
+  submitReservation() {
+    if (!this.service || !this.isReservationValid()) {
+      return;
+    }
+
+    this.reservationLoading = true;
+    const travelers = Number(this.reservationForm.numberOfTravelers) || 1;
+    const unitPrice = this.currencyService.convert(
+      this.service.price,
+      this.service.currency,
+      this.selectedCurrency
+    );
+    const totalAmount = unitPrice * travelers;
+
+    this.dataService.addBooking({
+      userId: this.currentUser?.id,
+      serviceId: this.service.id,
+      customerName: this.reservationForm.customerName,
+      email: this.reservationForm.email,
+      phone: this.reservationForm.phone,
+      serviceType: this.service.title,
+      destination: this.reservationForm.destination || undefined,
+      departureDate: this.reservationForm.departureDate,
+      returnDate: this.reservationForm.returnDate || undefined,
+      numberOfTravelers: travelers,
+      notes: this.reservationForm.notes || undefined,
+      totalAmount,
+      currency: this.selectedCurrency,
+      pricingPackageId: undefined,
+      packageCurrency: undefined,
+      priceSnapshot: this.service.price
+    }).subscribe({
+      next: () => {
+        this.reservationLoading = false;
+        this.reservationSuccess = true;
+        setTimeout(() => {
+          this.closeReservationModal();
+          this.router.navigate(['/dashboard'], { fragment: 'reservations' });
+        }, 1500);
+      },
+      error: (err) => {
+        console.error('Erreur lors de la création de la réservation :', err);
+        this.reservationLoading = false;
+        alert('Impossible de finaliser la réservation pour le moment.');
+      }
+    });
+  }
+
 }
 

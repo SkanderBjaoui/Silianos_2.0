@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Shield, Clock, Headphones, DollarSign, Star, CheckCircle } from 'lucide-angular';
+import { TypewriterDirective } from '../../directives/typewriter.directive';
 
 @Component({
   selector: 'app-why-us',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TypewriterDirective],
   templateUrl: './why-us.component.html',
   styleUrl: './why-us.component.css'
 })

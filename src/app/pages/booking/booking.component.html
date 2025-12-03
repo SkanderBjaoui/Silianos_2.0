@@ -1,229 +1,162 @@
 <div class="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
   <app-navbar></app-navbar>
 
-  <section class="pt-32 pb-20 relative overflow-hidden scroll-reveal" data-reveal-delay="80ms">
-    <!-- Decorative Elements -->
-    <div class="absolute top-0 left-0 w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-15 -translate-x-1/2 -translate-y-1/2"></div>
-    <div class="absolute bottom-0 right-0 w-96 h-96 bg-emerald-200 rounded-full blur-3xl opacity-15 translate-x-1/2 translate-y-1/2"></div>
+  <section class="pt-28 pb-24 relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute top-0 left-0 w-96 h-96 bg-cyan-400/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div class="absolute bottom-0 right-0 w-[30rem] h-[30rem] bg-emerald-400/10 rounded-full blur-3xl translate-x-1/4 translate-y-1/4"></div>
+    </div>
 
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-      <div class="text-center mb-12 scroll-reveal" data-reveal-delay="140ms">
-        <h1 class="text-5xl md:text-6xl font-premium font-bold text-white mb-4">
-          Réservez Votre Voyage
-        </h1>
-        <p class="text-xl text-slate-300 max-w-2xl mx-auto">
-          Remplissez le formulaire ci-dessous et notre équipe vous contactera dans les plus brefs délais
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+      <div class="text-center space-y-4">
+        <p class="text-sm uppercase tracking-[0.3em] text-cyan-300">Services disponibles</p>
+        <h1 class="text-4xl md:text-6xl font-premium font-bold text-white">Réservez votre service en toute confiance</h1>
+        <p class="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto">
+          Parcourez les services ajoutés par nos administrateurs, filtrez par pays et budget, puis réservez en quelques clics.
         </p>
+        @if (!currentUser) {
+          <p class="text-amber-300 text-sm">
+            Connectez-vous pour suivre vos réservations dans le tableau de bord.
+          </p>
+        }
       </div>
 
-      <!-- Success Message -->
-      @if (success) {
-        <div class="mb-8 p-4 bg-emerald-500/20 border border-emerald-500/50 rounded-2xl text-emerald-300 text-center scroll-reveal" data-reveal-delay="200ms">
-          <p class="font-semibold">Votre demande de réservation a été envoyée avec succès!</p>
-          <p class="text-sm mt-1">Nous vous contacterons bientôt.</p>
+      <div class="rounded-3xl border border-slate-800 bg-slate-900/60 backdrop-blur-xl p-6 space-y-6">
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div class="col-span-2">
+            <label class="text-sm font-semibold text-slate-400">Rechercher un service</label>
+            <div class="mt-2 relative">
+              <lucide-icon [name]="searchIcon" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5 pointer-events-none"></lucide-icon>
+              <input
+                type="text"
+                [(ngModel)]="searchTerm"
+                (ngModelChange)="applyFilters()"
+                placeholder="Omra, visa, circuit..."
+                class="w-full bg-slate-950/60 border border-slate-800 rounded-2xl pl-11 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="text-sm font-semibold text-slate-400">Budget ({{ selectedCurrency }})</label>
+            <div class="mt-2 grid grid-cols-2 gap-2">
+              <input
+                type="number"
+                min="0"
+                [(ngModel)]="minPrice"
+                (ngModelChange)="applyFilters()"
+                placeholder="Min"
+                class="w-full bg-slate-950/60 border border-slate-800 rounded-2xl px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+              />
+              <input
+                type="number"
+                min="0"
+                [(ngModel)]="maxPrice"
+                (ngModelChange)="applyFilters()"
+                placeholder="Max"
+                class="w-full bg-slate-950/60 border border-slate-800 rounded-2xl px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="text-sm font-semibold text-slate-400">Pays</label>
+            <div class="mt-2 relative">
+              <select
+                class="w-full bg-slate-950/60 border border-slate-800 rounded-2xl px-4 py-3 text-white appearance-none focus:outline-none focus:border-cyan-400"
+                [(ngModel)]="selectedCountry"
+                (ngModelChange)="applyFilters()"
+              >
+                <option class="bg-slate-900" value="all">Tous les pays</option>
+                @for (country of availableCountries; track country) {
+                  <option class="bg-slate-900" [value]="country">
+                    {{ country }}
+                  </option>
+                }
+              </select>
+              <lucide-icon [name]="chevronDownIcon" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5"></lucide-icon>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-sm font-semibold text-slate-400">Devise affichée</label>
+            <p class="mt-3 text-slate-300 text-sm">
+              {{ selectedCurrency }} (modifiable via le bouton en haut de la page).
+            </p>
+          </div>
         </div>
-      }
+      </div>
 
-      <!-- Booking Form -->
-      <div class="rounded-3xl shadow-2xl overflow-hidden border border-slate-800 backdrop-blur-xl p-8 md:p-12 scroll-reveal" data-reveal-delay="220ms">
-        <form (ngSubmit)="onSubmit()" class="space-y-6">
-          <!-- Name -->
-          <div>
-            <label class="block text-xs uppercase tracking-wide font-semibold text-slate-300 mb-2">
-              Nom complet
-            </label>
-            <div class="p-[2px] rounded-2xl bg-gradient-to-r from-cyan-500/50 via-blue-600/40 to-emerald-500/50">
-              <div class="flex items-center gap-3 rounded-2xl bg-transparent px-4 min-h-[54px]">
-                <span class="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/30 ring-1 ring-white/10">
-                  <lucide-icon [name]="usersIcon" class="w-5 h-5 text-slate-200"></lucide-icon>
-                </span>
-                <input
-                  type="text"
-                  [(ngModel)]="bookingForm.customerName"
-                  name="customerName"
-                  placeholder="Votre nom complet"
-                  required
-                  class="w-full bg-transparent border-0 outline-none ring-0 shadow-none focus:outline-none focus:ring-0 focus:shadow-none focus:bg-transparent caret-white text-white placeholder-white/70"
-                />
-              </div>
-            </div>
+      <!-- Services -->
+      <div class="space-y-6">
+        @if (loadingServices) {
+          <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            @for (skeleton of [1,2,3]; track skeleton) {
+              <div class="h-96 rounded-3xl border border-slate-800 bg-slate-900/40 animate-pulse"></div>
+            }
           </div>
-
-          <!-- Email & Phone -->
-          <div class="grid md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-xs uppercase tracking-wide font-semibold text-slate-300 mb-2">Email</label>
-              <div class="p-[2px] rounded-2xl bg-gradient-to-r from-cyan-500/50 via-blue-600/40 to-emerald-500/50">
-                <div class="flex items-center gap-3 rounded-2xl bg-transparent px-4 min-h-[54px]">
-                  <span class="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/30 ring-1 ring-white/10">
-                    <lucide-icon [name]="mailIcon" class="w-5 h-5 text-slate-200"></lucide-icon>
-                  </span>
-                  <input
-                    type="email"
-                    [(ngModel)]="bookingForm.email"
-                    name="email"
-                    placeholder="votre@email.com"
-                    required
-                    class="w-full bg-transparent border-0 outline-none ring-0 shadow-none focus:outline-none focus:ring-0 focus:shadow-none focus:bg-transparent caret-white text-white placeholder-white/70"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-xs uppercase tracking-wide font-semibold text-slate-300 mb-2">Téléphone</label>
-              <div class="p-[2px] rounded-2xl bg-gradient-to-r from-cyan-500/50 via-blue-600/40 to-emerald-500/50">
-                <div class="flex items-center gap-3 rounded-2xl bg-transparent px-4 min-h-[54px]">
-                  <span class="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/30 ring-1 ring-white/10">
-                    <lucide-icon [name]="phoneIcon" class="w-5 h-5 text-slate-200"></lucide-icon>
-                  </span>
-                  <input
-                    type="tel"
-                    [(ngModel)]="bookingForm.phone"
-                    name="phone"
-                    placeholder="+216 XX XXX XXX"
-                    required
-                    class="w-full bg-transparent border-0 outline-none ring-0 shadow-none focus:outline-none focus:ring-0 focus:shadow-none focus:bg-transparent caret-white text-white placeholder-white/70"
-                  />
-                </div>
-              </div>
-            </div>
+        } @else if (servicesError) {
+          <div class="text-center border border-slate-800 rounded-3xl p-12 text-slate-300">
+            {{ servicesError }}
           </div>
-
-          <!-- Service Type -->
-          <div>
-            <label class="block text-xs uppercase tracking-wide font-semibold text-slate-300 mb-2">Type de service</label>
-            <div class="p-[2px] rounded-2xl bg-gradient-to-r from-cyan-500/50 via-blue-600/40 to-emerald-500/50">
-              <div class="flex items-center gap-3 rounded-2xl bg-transparent px-4 min-h-[54px]">
-                <span class="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/30 ring-1 ring-white/10">
-                  <lucide-icon [name]="planeIcon" class="w-5 h-5 text-slate-200"></lucide-icon>
-                </span>
-                <select
-                  [(ngModel)]="bookingForm.serviceType"
-                  name="serviceType"
-                  required
-                  class="w-full bg-transparent border-0 outline-none ring-0 shadow-none focus:outline-none focus:ring-0 focus:shadow-none focus:bg-transparent caret-white text-white"
-                >
-                  <option value="" disabled selected>Sélectionnez un service</option>
-                  @for (service of serviceTypes; track service) {
-                    <option [value]="service" class="bg-slate-900">{{ service }}</option>
+        } @else if (filteredServices.length === 0) {
+          <div class="text-center border border-dashed border-slate-700 rounded-3xl p-12 text-slate-300">
+            Aucun service ne correspond à vos filtres. Ajustez votre budget ou sélectionnez un autre pays.
+          </div>
+        } @else {
+          <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            @for (service of filteredServices; track service.id) {
+              <div class="rounded-3xl border border-slate-800 bg-slate-950/60 overflow-hidden flex flex-col">
+                <div class="relative h-48 w-full bg-slate-900">
+                  <div
+                    class="absolute inset-0 bg-cover bg-center"
+                    [style.background-image]="service.image ? 'url(' + service.image + ')' : 'url(assets/hero.jpg)'"
+                  ></div>
+                  <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+                  @if (service.country) {
+                    <span class="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/50">
+                      {{ service.country }}
+                    </span>
                   }
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Destination -->
-          <div>
-            <label class="block text-xs uppercase tracking-wide font-semibold text-slate-300 mb-2">Destination</label>
-            <div class="p-[2px] rounded-2xl bg-gradient-to-r from-cyan-500/50 via-blue-600/40 to-emerald-500/50">
-              <div class="flex items-center gap-3 rounded-2xl bg-transparent px-4 min-h-[54px]">
-                <span class="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/30 ring-1 ring-white/10">
-                  <lucide-icon [name]="mapPinIcon" class="w-5 h-5 text-slate-200"></lucide-icon>
-                </span>
-                <input
-                  type="text"
-                  [(ngModel)]="bookingForm.destination"
-                  name="destination"
-                  placeholder="Ex: Dubai, Makkah, Tozeur..."
-                  class="w-full bg-transparent border-0 outline-none ring-0 shadow-none focus:outline-none focus:ring-0 focus:shadow-none focus:bg-transparent caret-white text-white placeholder-white/70"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Dates & Travelers -->
-          <div class="grid md:grid-cols-3 gap-6">
-            <div>
-              <label class="block text-xs uppercase tracking-wide font-semibold text-slate-300 mb-2">Date de départ</label>
-              <div class="p-[2px] rounded-2xl bg-gradient-to-r from-cyan-500/50 via-blue-600/40 to-emerald-500/50">
-                <div class="flex items-center gap-3 rounded-2xl bg-transparent px-4 min-h-[54px]">
-                  <span class="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/30 ring-1 ring-white/10">
-                    <lucide-icon [name]="calendarIcon" class="w-5 h-5 text-slate-200"></lucide-icon>
-                  </span>
-                  <input
-                    type="date"
-                    [(ngModel)]="bookingForm.departureDate"
-                    name="departureDate"
-                    required
-                    class="w-full bg-transparent border-0 outline-none ring-0 shadow-none focus:outline-none focus:ring-0 focus:shadow-none focus:bg-transparent caret-white text-white"
-                  />
+                </div>
+                <div class="p-6 flex flex-col flex-1">
+                  <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-2xl font-semibold text-white">{{ service.title }}</h3>
+                    <div class="text-right">
+                      <p class="text-3xl font-bold text-white">
+                        {{ service.displayPrice | number:'1.0-0' }}
+                      </p>
+                      <p class="text-sm text-slate-400">{{ selectedCurrency }}</p>
+                    </div>
+                  </div>
+                  <p class="text-slate-300 text-sm mb-4 min-h-[3.5rem] overflow-hidden">
+                    {{ service.description }}
+                  </p>
+                  <ul class="space-y-2 text-sm text-slate-400 mb-6 flex-1">
+                    @for (feature of service.features; track feature) {
+                      <li class="flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        {{ feature }}
+                      </li>
+                    }
+                  </ul>
+                  <button
+                    type="button"
+                    (click)="openReservationModal(service)"
+                    class="w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-emerald-500 py-3 font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+                  >
+                    Réserver
+                  </button>
                 </div>
               </div>
-            </div>
-
-            <div>
-              <label class="block text-xs uppercase tracking-wide font-semibold text-slate-300 mb-2">Date de retour</label>
-              <div class="p-[2px] rounded-2xl bg-gradient-to-r from-cyan-500/50 via-blue-600/40 to-emerald-500/50">
-                <div class="flex items-center gap-3 rounded-2xl bg-transparent px-4 min-h-[54px]">
-                  <span class="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/30 ring-1 ring-white/10">
-                    <lucide-icon [name]="calendarIcon" class="w-5 h-5 text-slate-200"></lucide-icon>
-                  </span>
-                  <input
-                    type="date"
-                    [(ngModel)]="bookingForm.returnDate"
-                    name="returnDate"
-                    class="w-full bg-transparent border-0 outline-none ring-0 shadow-none focus:outline-none focus:ring-0 focus:shadow-none focus:bg-transparent caret-white text-white"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-xs uppercase tracking-wide font-semibold text-slate-300 mb-2">Nombre de voyageurs</label>
-              <div class="p-[2px] rounded-2xl bg-gradient-to-r from-cyan-500/50 via-blue-600/40 to-emerald-500/50">
-                <div class="flex items-center gap-3 rounded-2xl bg-transparent px-4 min-h-[54px]">
-                  <span class="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500/30 to-blue-600/30 ring-1 ring-white/10">
-                    <lucide-icon [name]="usersIcon" class="w-5 h-5 text-slate-200"></lucide-icon>
-                  </span>
-                  <input
-                    type="number"
-                    [(ngModel)]="bookingForm.numberOfTravelers"
-                    name="numberOfTravelers"
-                    min="1"
-                    required
-                    class="w-full bg-transparent border-0 outline-none ring-0 shadow-none focus:outline-none focus:ring-0 focus:shadow-none focus:bg-transparent caret-white text-white"
-                  />
-                </div>
-              </div>
-            </div>
+            }
           </div>
-
-          <!-- Notes -->
-          <div>
-            <label class="block text-xs uppercase tracking-wide font-semibold text-slate-300 mb-2">Notes ou demandes spéciales</label>
-            <div class="p-[2px] rounded-2xl bg-gradient-to-r from-cyan-500/50 via-blue-600/40 to-emerald-500/50">
-              <div class="rounded-2xl bg-transparent px-4 py-3">
-                <textarea
-                  [(ngModel)]="bookingForm.notes"
-                  name="notes"
-                  rows="4"
-                  placeholder="Dites-nous vos préférences ou demandes spéciales..."
-                  class="w-full bg-transparent border-0 outline-none ring-0 shadow-none focus:outline-none focus:ring-0 focus:shadow-none focus:bg-transparent caret-white text-white placeholder-white/70 resize-none"
-                ></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <div>
-            <button
-              type="submit"
-              [disabled]="submitted"
-              class="w-full py-4 px-8 rounded-2xl font-semibold text-white bg-gradient-to-r from-cyan-500 via-blue-600 to-emerald-500 hover:shadow-2xl hover:shadow-cyan-500/30 hover:-translate-y-0.5 transition-all ring-1 ring-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              @if (submitted) {
-                Envoi en cours...
-              } @else {
-                Envoyer la demande de réservation
-              }
-            </button>
-          </div>
-        </form>
+        }
       </div>
     </div>
   </section>
 
   <app-footer></app-footer>
 </div>
+
 

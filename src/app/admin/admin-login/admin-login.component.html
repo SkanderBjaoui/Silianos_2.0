@@ -15,10 +15,10 @@
           </div>
         }
 
-        <!-- Email -->
+        <!-- Username -->
         <div>
           <label class="block text-xs uppercase tracking-wide font-semibold text-slate-300 mb-2">
-            Email
+            Nom d'utilisateur
           </label>
           <div class="p-[2px] rounded-2xl bg-gradient-to-r from-cyan-500/50 via-blue-600/40 to-emerald-500/50">
             <div class="flex items-center gap-3 rounded-2xl bg-transparent px-4 min-h-[54px]">
@@ -26,10 +26,10 @@
                 <lucide-icon [name]="mailIcon" class="w-5 h-5 text-slate-200"></lucide-icon>
               </span>
               <input
-                type="email"
-                [(ngModel)]="loginForm.email"
-                name="email"
-                placeholder="admin@silianos.com"
+                type="text"
+                [(ngModel)]="loginForm.username"
+                name="username"
+                placeholder="admin"
                 required
                 class="w-full bg-transparent border-0 outline-none ring-0 shadow-none focus:outline-none focus:ring-0 focus:shadow-none focus:bg-transparent caret-white text-white placeholder-white/70"
               />
