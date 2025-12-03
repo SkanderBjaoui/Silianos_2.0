@@ -6,8 +6,23 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
 
-  // Clone the request and add the authorization header if token exists
-  if (token) {
+  // Only attach Authorization header for requests targeting the backend API
+  // Avoid adding the header to third-party requests (like currency APIs) which may fail CORS preflight
+  const apiBase = (window as any).API_BASE || 'http://localhost:3000';
+
+  const isApiRequest = (() => {
+    try {
+      // If the request is absolute and starts with our API base
+      if (req.url.startsWith(apiBase)) return true;
+    } catch (e) {
+      // ignore
+    }
+    // Also allow relative /api routes
+    if (req.url.startsWith('/api') || req.url.includes('/api/')) return true;
+    return false;
+  })();
+
+  if (token && isApiRequest) {
     const clonedRequest = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`

@@ -7,10 +7,10 @@ import { catchError, map, tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class CurrencyService {
-  // Public, free API with CORS enabled and no API key
-  // Docs: https://www.exchangerate-api.com/docs/free
-  // Example: https://open.er-api.com/v6/latest/EUR
-  private apiUrl = 'https://open.er-api.com/v6/latest';
+  // Use exchangerate.host which supports CORS and doesn't require an API key
+  // Docs: https://exchangerate.host/#/
+  // Example: https://api.exchangerate.host/latest?base=EUR
+  private apiUrl = 'https://api.exchangerate.host/latest';
   private baseCurrency = 'EUR';
 
   // Fallback static rates relative to EUR (approximate)
@@ -67,7 +67,7 @@ export class CurrencyService {
 
     this.isLoading = true;
 
-    const url = `${this.apiUrl}/${this.baseCurrency}`;
+    const url = `${this.apiUrl}?base=${this.baseCurrency}`;
 
     return this.http.get<{ rates: Record<string, number> }>(url).pipe(
       map(response => response?.rates || {}),

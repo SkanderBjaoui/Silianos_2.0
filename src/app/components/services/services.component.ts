@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule, MapPin } from 'lucide-angular';
 import { DataService, Service } from '../../services/data.service';
 import { TypewriterDirective } from '../../directives/typewriter.directive';
 import { AuthService } from '../../services/auth.service';
@@ -28,6 +28,7 @@ interface ServiceDisplay {
   styleUrl: './services.component.css'
 })
 export class ServicesComponent implements OnInit {
+  mapPinIcon = MapPin;
   services: ServiceDisplay[] = [];
   loading = false;
   selectedCurrency = 'TND';
