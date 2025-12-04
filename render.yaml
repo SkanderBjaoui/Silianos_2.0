@@ -3,7 +3,7 @@ services:
     name: silianos
     env: static
     buildCommand: npm run build
-    publishPath: dist/silianos-ng/browser
+    publishPath: dist/browser
     routes:
       - src: /.*
         dest: /index.html
