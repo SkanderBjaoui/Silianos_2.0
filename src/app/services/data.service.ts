@@ -77,10 +77,8 @@ export interface Service {
   price: number;
   currency: string;
   country?: string;
-  // Optional legacy dates (kept for backward compatibility)
   startDate?: string;
   endDate?: string;
-  // New: maximum duration in days defined by admin
   durationDays?: number;
   status: 'active' | 'inactive';
   benefits?: string[];
@@ -110,8 +108,7 @@ export class DataService {
 
   constructor(private http: HttpClient) {}
 
-  // Keep mock data as fallback (optional - remove later)
-  private bookings: Booking[] = [
+    private bookings: Booking[] = [
     {
       id: '1',
       userId: '1',
@@ -305,8 +302,7 @@ export class DataService {
     }
   ];
 
-  // Helper to map database fields to interface
-  private mapBooking(dbBooking: any): Booking {
+    private mapBooking(dbBooking: any): Booking {
     return {
       id: dbBooking.id.toString(),
       userId: dbBooking.user_id?.toString(),
@@ -333,7 +329,6 @@ export class DataService {
     };
   }
 
-  // Bookings
   getBookings(userId?: string): Observable<Booking[]> {
     return this.http.get<any[]>(`${this.apiUrl}/bookings`).pipe(
       map(bookings => {
@@ -407,8 +402,7 @@ export class DataService {
     };
   }
 
-  // Testimonials
-  getTestimonials(): Observable<Testimonial[]> {
+    getTestimonials(): Observable<Testimonial[]> {
     return this.http.get<any[]>(`${this.apiUrl}/testimonials`).pipe(
       map(testimonials => testimonials.map(t => this.mapTestimonial(t)))
     );
@@ -451,7 +445,6 @@ export class DataService {
     };
   }
 
-  // Blog Posts
   getBlogPosts(): Observable<BlogPost[]> {
     return this.http.get<any[]>(`${this.apiUrl}/blog`).pipe(
       map(posts => posts.map(p => this.mapBlogPost(p)))
@@ -516,7 +509,6 @@ export class DataService {
     };
   }
 
-  // Contact Messages
   getContactMessages(): Observable<ContactMessage[]> {
     return this.http.get<any[]>(`${this.apiUrl}/messages`).pipe(
       map(messages => messages.map(m => this.mapContactMessage(m)))
@@ -553,7 +545,6 @@ export class DataService {
     };
   }
 
-  // Gallery
   getGalleryImages(category?: string): Observable<GalleryImage[]> {
     const url = (category && category !== 'all') 
       ? `${this.apiUrl}/gallery/category/${category}`
@@ -580,12 +571,10 @@ export class DataService {
     return this.http.delete<any>(`${this.apiUrl}/gallery/${id}`);
   }
 
-  // Testimonial Verification
   verifyTestimonial(id: string): Observable<void> {
     return this.http.patch<void>(`${this.apiUrl}/testimonials/${id}/verify`, {});
   }
 
-  // Services
   getServices(): Observable<Service[]> {
     return this.http.get<any[]>(`${this.apiUrl}/services`).pipe(
       map(services => services.map(s => ({
@@ -674,7 +663,6 @@ export class DataService {
     return this.http.delete<void>(`${this.apiUrl}/services/${id}`);
   }
 
-  // Pricing Packages
   getPricingPackages(): Observable<PricingPackage[]> {
     return this.http.get<any[]>(`${this.apiUrl}/pricing`).pipe(
       map(packages => packages.map(p => ({

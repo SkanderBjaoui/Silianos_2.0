@@ -1288,24 +1288,23 @@ input, textarea {
   appearance: none;
 }
 
-/* Autofill handling specifically for our inputs */
 input.field-input:-webkit-autofill,
 textarea.field-input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
   -webkit-text-fill-color: #ffffff !important;
 }
 
-/* Remove Chrome autofill gray/yellow background */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 textarea:-webkit-autofill,
 textarea:-webkit-autofill:hover,
 textarea:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0px 1000px transparent inset;
-  -webkit-text-fill-color: #e5e7eb;
-  transition: background-color 9999s ease-in-out 0s;
-  caret-color: #e5e7eb;
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  transition: background-color 9999s ease-in-out 0s !important;
+  caret-color: transparent !important;
+  background-color: transparent !important;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1316,7 +1315,41 @@ textarea:-webkit-autofill:focus {
   textarea:-webkit-autofill:hover,
   textarea:-webkit-autofill:focus {
     -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+    background-color: transparent !important;
+    caret-color: transparent !important;
   }
+}
+
+input:focus,
+input:hover,
+input:active,
+textarea:focus,
+textarea:hover,
+textarea:active {
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+input::selection,
+textarea::selection {
+  background-color: transparent !important;
+  color: #ffffff !important;
+}
+
+input:focus-visible,
+textarea:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+}
+
+input::-moz-selection,
+textarea::-moz-selection {
+  background-color: transparent !important;
+  color: #ffffff !important;
 }
 
 .luxury-button:hover {

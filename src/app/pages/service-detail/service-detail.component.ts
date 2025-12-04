@@ -20,11 +20,9 @@ interface ServiceDetailDisplay {
   benefits?: string[];
   price: number;
   currency: string;
-  // Optional legacy dates (ignored for new reservations)
-  startDate?: string;
+    startDate?: string;
   endDate?: string;
-  // Admin-defined maximum duration in days
-  durationDays?: number;
+    durationDays?: number;
 }
 
 @Component({
