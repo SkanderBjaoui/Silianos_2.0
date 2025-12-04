@@ -1,0 +1,10 @@
+version: 1
+builds:
+  - src: package.json
+    use: '@render/angular'
+    config:
+      buildCommand: npm run build
+      publishPath: dist/silianos-ng
+routes:
+  - src: /(.*)
+    dest: /index.html

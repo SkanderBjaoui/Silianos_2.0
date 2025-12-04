@@ -104,7 +104,7 @@ export interface PricingPackage {
   providedIn: 'root'
 })
 export class DataService {
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = 'https://silianos-backend.onrender.com/api';
 
   constructor(private http: HttpClient) {}
 
