@@ -4,7 +4,7 @@ builds:
     use: '@render/angular'
     config:
       buildCommand: npm run build
-      publishPath: dist/
+      publishPath: dist
 routes:
   - src: /assets/(.*)
     dest: /assets/$1
