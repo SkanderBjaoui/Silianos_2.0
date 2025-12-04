@@ -15,7 +15,7 @@ import { LucideAngularModule, Lock, Mail } from 'lucide-angular';
 export class AdminLoginComponent {
   lockIcon = Lock;
   mailIcon = Mail;
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = 'https://silianos-backend.onrender.com/api';
   
   loginForm = {
     username: '',

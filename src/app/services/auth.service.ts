@@ -28,7 +28,7 @@ export interface PaymentMethod {
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(this.getStoredUser());
   public currentUser$ = this.currentUserSubject.asObservable();
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = 'https://silianos-backend.onrender.com/api';
   private guestCurrencyKey = 'guestPreferredCurrency';
   private preferredCurrencySubject = new BehaviorSubject<string>(this.getInitialCurrency());
   public preferredCurrency$ = this.preferredCurrencySubject.asObservable();

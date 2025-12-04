@@ -8,7 +8,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Only attach Authorization header for requests targeting the backend API
   // Avoid adding the header to third-party requests (like currency APIs) which may fail CORS preflight
-  const apiBase = (window as any).API_BASE || 'http://localhost:3000';
+  const apiBase = (window as any).API_BASE || 'https://silianos-backend.onrender.com';
 
   const isApiRequest = (() => {
     try {
