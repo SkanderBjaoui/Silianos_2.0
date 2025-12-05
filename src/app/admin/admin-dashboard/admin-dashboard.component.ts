@@ -4,6 +4,7 @@ import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { LucideAngularModule, LogOut, LayoutDashboard, Calendar, Package, DollarSign, MessageSquare, Star, Menu, X, FileText, Image as ImageIcon } from 'lucide-angular';
 import { DataService } from '../../services/data.service';
 import { CurrencyService } from '../../services/currency.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -43,14 +44,16 @@ export class AdminDashboardComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private dataService: DataService
-    , private currencyService: CurrencyService
+    private dataService: DataService,
+    private currencyService: CurrencyService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
-    // Check if user is logged in
-    if (!localStorage.getItem('adminLoggedIn')) {
-      this.router.navigate(['/admin/login']);
+    // Check if user is logged in as admin
+    const user = this.authService.getCurrentUser();
+    if (!user || !user.isAdmin) {
+      this.router.navigate(['/login']);
       return;
     }
 
@@ -88,8 +91,8 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   logout() {
-    localStorage.removeItem('adminLoggedIn');
-    this.router.navigate(['/admin/login']);
+    this.authService.logout();
+    this.router.navigate(['/']);
   }
 }
 
