@@ -18,7 +18,7 @@ export class AdminLoginComponent {
   private apiUrl = 'https://silianos-backend.onrender.com/api';
   
   loginForm = {
-    username: '',
+    email: '',
     password: ''
   };
   
@@ -35,7 +35,7 @@ export class AdminLoginComponent {
     this.loading = true;
 
     this.http.post<{ token: string; user: any }>(`${this.apiUrl}/auth/admin/login`, {
-      username: this.loginForm.username,
+      email: this.loginForm.email,
       password: this.loginForm.password
     }).subscribe({
       next: (response) => {

@@ -5,13 +5,12 @@ import { Router, RouterModule } from '@angular/router';
 import { LucideAngularModule, Mail, Lock, User, Phone, LogIn, UserPlus, ArrowRight, Eye, EyeOff } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
-import { FooterComponent } from '../../components/footer/footer.component';
 import { CountrySelectorComponent, Country } from '../../components/country-selector/country-selector.component';
 
 @Component({
   selector: 'app-auth',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule, NavbarComponent, FooterComponent, CountrySelectorComponent],
+  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule, NavbarComponent, CountrySelectorComponent],
   templateUrl: './auth.component.html',
   styleUrl: './auth.component.css'
 })
@@ -258,8 +257,13 @@ export class AuthComponent implements OnInit, AfterViewChecked {
     this.loading = true;
 
     this.authService.login(this.loginEmail.trim(), this.loginPassword).subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard']);
+      next: (user) => {
+        // Check if user is admin and redirect accordingly
+        if (user.isAdmin) {
+          this.router.navigate(['/admin']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (err) => {
         this.error = err.message || 'Une erreur est survenue';

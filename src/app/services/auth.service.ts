@@ -9,6 +9,7 @@ export interface User {
   phone?: string;
   preferredCurrency?: string;
   createdAt: string;
+  isAdmin?: boolean;
 }
 
 export interface PaymentMethod {
@@ -85,6 +86,13 @@ export class AuthService {
   }
 
   signup(email: string, password: string, name: string, phone?: string): Observable<User> {
+    // First check if email is admin email
+    if (this.checkIfAdmin(email)) {
+      return throwError(() => ({ 
+        message: 'Cet email est réservé aux administrateurs. Veuillez utiliser la page de connexion.' 
+      }));
+    }
+
     return this.http.post<{ token: string; user: User }>(`${this.apiUrl}/auth/user/register`, {
       email,
       password,
@@ -149,7 +157,8 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<User> {
-    return this.http.post<{ token: string; user: User }>(`${this.apiUrl}/auth/user/login`, {
+    // First try admin login
+    return this.http.post<{ token: string; user: any }>(`${this.apiUrl}/auth/admin/login`, {
       email,
       password
     }).pipe(
@@ -157,22 +166,77 @@ export class AuthService {
         // Store token in localStorage (persists for 7 days)
         localStorage.setItem('authToken', response.token);
         
+        // Admin user - add admin flag and normalize
+        const adminUser = {
+          id: response.user.id,
+          email: response.user.email,
+          name: response.user.full_name || response.user.username,
+          phone: response.user.phone || undefined,
+          preferredCurrency: 'TND',
+          createdAt: new Date().toISOString(), // Admins don't have createdAt in response
+          isAdmin: true
+        };
+        
+                
         // Store user in localStorage
-        const normalized = this.normalizeUser(response.user)!;
+        const normalized = this.normalizeUser(adminUser)!;
         this.currentUserSubject.next(normalized);
         this.saveUser(normalized);
         this.preferredCurrencySubject.next(normalized.preferredCurrency || 'TND');
         return normalized;
       }),
-      catchError(error => {
-        const errorMessage = error.error?.error || 'Email ou mot de passe incorrect';
-        return throwError(() => ({ message: errorMessage }));
+      catchError((adminError) => {
+        // If admin login fails with specific error, don't try user login
+        if (adminError.status === 400) {
+          return throwError(() => ({ 
+            message: adminError.error?.error || 'Email and password are required' 
+          }));
+        }
+        // If admin login fails, try regular user login
+        return this.http.post<{ token: string; user: User }>(`${this.apiUrl}/auth/user/login`, {
+          email,
+          password
+        }).pipe(
+          map(response => {
+            // Store token in localStorage (persists for 7 days)
+            localStorage.setItem('authToken', response.token);
+            
+            // Regular user - add admin flag (false)
+            const userWithAdmin = {
+              ...response.user,
+              isAdmin: false
+            };
+            
+            // Store user in localStorage
+            const normalized = this.normalizeUser(userWithAdmin)!;
+            this.currentUserSubject.next(normalized);
+            this.saveUser(normalized);
+            this.preferredCurrencySubject.next(normalized.preferredCurrency || 'TND');
+            return normalized;
+          }),
+          catchError(error => {
+            const errorMessage = error.error?.error || 'Email ou mot de passe incorrect';
+            return throwError(() => ({ message: errorMessage }));
+          })
+        );
       })
     );
   }
 
   logout(): void {
     this.clearSession();
+  }
+
+  checkIfAdmin(email: string): boolean {
+    // This will be checked via backend API call
+    return false; // Default to false, will be updated by backend response
+  }
+
+  checkIfEmailIsAdmin(email: string): Observable<boolean> {
+    return this.http.get<{ isAdmin: boolean }>(`${this.apiUrl}/auth/check-admin/${email}`).pipe(
+      map(response => response.isAdmin),
+      catchError(() => of(false))
+    );
   }
 
   getCurrentUser(): User | null {

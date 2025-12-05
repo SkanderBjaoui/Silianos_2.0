@@ -8,7 +8,6 @@ import { BlogComponent } from './pages/blog/blog.component';
 import { ServiceDetailComponent } from './pages/service-detail/service-detail.component';
 import { PrivacyComponent } from './pages/privacy/privacy.component';
 import { TermsComponent } from './pages/terms/terms.component';
-import { AdminLoginComponent } from './admin/admin-login/admin-login.component';
 import { AdminDashboardComponent } from './admin/admin-dashboard/admin-dashboard.component';
 import { AdminOverviewComponent } from './admin/admin-overview/admin-overview.component';
 import { AdminBookingsComponent } from './admin/admin-bookings/admin-bookings.component';
@@ -20,12 +19,14 @@ import { AdminBlogComponent } from './admin/admin-blog/admin-blog.component';
 import { AdminGalleryComponent } from './admin/admin-gallery/admin-gallery.component';
 import { AuthComponent } from './pages/auth/auth.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { AdminGuard } from './guards/admin.guard';
+import { UserGuard } from './guards/user.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'services', component: ServicesPageComponent },
   { path: 'services/:id', component: ServiceDetailComponent },
-  { path: 'booking', component: BookingComponent },
+  { path: 'booking', component: BookingComponent, canActivate: [UserGuard] },
   { path: 'gallery', component: GalleryComponent },
   { path: 'testimonials', component: TestimonialsComponent },
   { path: 'blog', component: BlogComponent },
@@ -33,11 +34,11 @@ export const routes: Routes = [
   { path: 'terms', component: TermsComponent },
   { path: 'login', component: AuthComponent },
   { path: 'signup', component: AuthComponent },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'admin/login', component: AdminLoginComponent },
-  {
+  { path: 'dashboard', component: DashboardComponent, canActivate: [UserGuard] },
+    {
     path: 'admin',
     component: AdminDashboardComponent,
+    canActivate: [AdminGuard],
     children: [
       { path: '', component: AdminOverviewComponent },
       { path: 'bookings', component: AdminBookingsComponent },
@@ -48,7 +49,5 @@ export const routes: Routes = [
       { path: 'blog', component: AdminBlogComponent },
       { path: 'gallery', component: AdminGalleryComponent },
     ]
-  },
-  { path: '**', redirectTo: '' }
+  }
 ];
-
